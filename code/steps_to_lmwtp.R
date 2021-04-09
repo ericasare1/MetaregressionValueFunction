@@ -408,8 +408,20 @@ us_canada <- canada_data %>%
   add_row(add_us_data) %>%
   add_row(us_data)
 
-us_canada %>% View()
+us_canada %>% View() 
 
+#  >>>>>>>>>>>>>>>>> Conversions <<<<<<<<<<<<<<<<<<<<<
+cpi_canada <- get_cansim(1810000401) %>%
+  filter(`Products and product groups` == "All-items",
+         GEO == "Canada") %>%
+  select(REF_DATE, VALUE) %>%
+  separate(REF_DATE, into = c('year', 'month'),  remove = F) %>%
+  rename(cpi = VALUE) %>% 
+  group_by(year) %>%
+  summarise(cpi_annual = mean(cpi)) %>%
+  filter(year > 2000)
+
+cpi_canada %>% View()
 exchrate <- exch_rate_us_to_can %>% 
 	group_by(Year) %>%
 	summarize(av_monthly_excrate = mean(exchrate)) %>%
