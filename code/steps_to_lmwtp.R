@@ -100,17 +100,17 @@ canada_data <- data.frame(
     local = ifelse(authors == "lantz_wtp1"|authors == "lantz_wtp2", 1, local),
     local = ifelse(authors == "rudd_wtp1"|authors == "rudd_wtp2", 0, local),
     local = ifelse(authors == "he_wtp_ce"|authors == "he_wtp_cv", 1, local),
-    local = ifelse(authors == "vossler_wtp", 1, local),
+    local = ifelse(authors == "vossler_wtp", 0, local),
     # provisioning, binary = 1 if wetland produced provisioning ess 0 otherwise
     prov = ifelse(authors == "tkac_wtp", 1, 0),
     prov = ifelse(authors == "trenholm_wtp_30W"|authors == "trenholm_wtp_60W"|authors == "trenholm_wtp_30mAll"|
                      authors == "trenholm_wtp_60mAll", 1, prov),
     prov = ifelse(authors == "pattisson_wtp_2008l"|authors == "pattisson_wtp_80"|authors == "pattisson_wtp_83"|
                      authors == "pattisson_wtp_89"|authors == "pattisson_wtp_100", 0, prov),
-    prov = ifelse(authors == "lantz_wtp1"|authors == "lantz_wtp2", 1, prov), #check
+    prov = ifelse(authors == "lantz_wtp1"|authors == "lantz_wtp2", 0, prov),
     prov = ifelse(authors == "rudd_wtp1"|authors == "rudd_wtp2", 1, prov),
     prov = ifelse(authors == "he_wtp_ce"|authors == "he_wtp_cv", 0, prov),
-    prov = ifelse(authors == "vossler_wtp", 1, prov), #check
+    prov = ifelse(authors == "vossler_wtp", 1, prov), 
     
     # regulation ess, binary = 1 if wetland produced regulation ess
     reg = ifelse(authors == "tkac_wtp", 1, 0),
@@ -118,10 +118,10 @@ canada_data <- data.frame(
                     authors == "trenholm_wtp_60mAll", 0, reg),
     reg = ifelse(authors == "pattisson_wtp_2008l"|authors == "pattisson_wtp_80"|authors == "pattisson_wtp_83"|
                     authors == "pattisson_wtp_89"|authors == "pattisson_wtp_100", 1, reg),
-    reg = ifelse(authors == "lantz_wtp1"|authors == "lantz_wtp2", 1, reg), #check
+    reg = ifelse(authors == "lantz_wtp1"|authors == "lantz_wtp2", 1, reg),
     reg = ifelse(authors == "rudd_wtp1"|authors == "rudd_wtp2", 1, reg),
     reg = ifelse(authors == "he_wtp_ce"|authors == "he_wtp_cv", 1, reg),
-    reg = ifelse(authors == "vossler_wtp", 1, reg), #check
+    reg = ifelse(authors == "vossler_wtp", 1, reg), 
     
     # cultural ess, binary = 1 if wetland produced cultural ess
     cult = ifelse(authors == "tkac_wtp", 0, 0),
@@ -129,10 +129,10 @@ canada_data <- data.frame(
                    authors == "trenholm_wtp_60mAll", 0, cult),
     cult = ifelse(authors == "pattisson_wtp_2008l"|authors == "pattisson_wtp_80"|authors == "pattisson_wtp_83"|
                    authors == "pattisson_wtp_89"|authors == "pattisson_wtp_100", 0, cult),
-    cult = ifelse(authors == "lantz_wtp1"|authors == "lantz_wtp2", 1, cult), #check
+    cult = ifelse(authors == "lantz_wtp1"|authors == "lantz_wtp2", 0, cult), 
     cult = ifelse(authors == "rudd_wtp1"|authors == "rudd_wtp2", 1, cult),
     cult = ifelse(authors == "he_wtp_ce"|authors == "he_wtp_cv", 0, cult),
-    cult = ifelse(authors == "vossler_wtp", 1, cult), #check
+    cult = ifelse(authors == "vossler_wtp", 1, cult), 
     
     # forest, binary = 1 if wetland is in forest landscape
     cult = ifelse(authors == "tkac_wtp", 0, 0),
@@ -140,10 +140,10 @@ canada_data <- data.frame(
                     authors == "trenholm_wtp_60mAll", 1, cult),
     cult = ifelse(authors == "pattisson_wtp_2008l"|authors == "pattisson_wtp_80"|authors == "pattisson_wtp_83"|
                     authors == "pattisson_wtp_89"|authors == "pattisson_wtp_100", 0, cult),
-    cult = ifelse(authors == "lantz_wtp1"|authors == "lantz_wtp2", 1, cult), #check
+    cult = ifelse(authors == "lantz_wtp1"|authors == "lantz_wtp2", 0, cult), 
     cult = ifelse(authors == "rudd_wtp1"|authors == "rudd_wtp2", 1, cult),
     cult = ifelse(authors == "he_wtp_ce"|authors == "he_wtp_cv", 0, cult),
-    cult = ifelse(authors == "vossler_wtp", 1, cult), #check
+    cult = ifelse(authors == "vossler_wtp", 1, cult), 
     
     # baseline acreage
     q0 = ifelse(authors == "tkac_wtp", 4200, 0),
@@ -156,13 +156,13 @@ canada_data <- data.frame(
     q0 = ifelse(authors == "pattisson_wtp_83", 949184, q0),
     q0 = ifelse(authors =="pattisson_wtp_89", 949184, q0),
     q0 = ifelse(authors == "pattisson_wtp_100", 949184, q0),
-    q0 = ifelse(authors == "lantz_wtp1", 1, q0), #check
-    q0 = ifelse(authors == "lantz_wtp2", 1, q0), #check
+    q0 = ifelse(authors == "lantz_wtp1", 14520, q0), 
+    q0 = ifelse(authors == "lantz_wtp2", 14520, q0), 
     q0 = ifelse(authors == "rudd_wtp1", 1307159, q0),
     q0 = ifelse(authors == "rudd_wtp2", 1307159, q0),
     q0 = ifelse(authors == "he_wtp_ce", 988422, q0),
     q0 = ifelse(authors == "he_wtp_cv", 988422, q0),
-    q0 = ifelse(authors == "vossler_wtp", 1, q0), #check
+    q0 = ifelse(authors == "vossler_wtp", 29652645.8, q0), 
     
     # policy acreage
     q1 = ifelse(authors == "tkac_wtp", 8400, 0),
@@ -175,40 +175,52 @@ canada_data <- data.frame(
     q1 = ifelse(authors == "pattisson_wtp_83", 1125461, q1),
     q1 = ifelse(authors =="pattisson_wtp_89", 1206820, q1),
     q1 = ifelse(authors == "pattisson_wtp_100", 1355977, q1),
-    q1 = ifelse(authors == "lantz_wtp1", 1, q1), #check
-    q1 = ifelse(authors == "lantz_wtp2", 1, q1), #check
+    q1 = ifelse(authors == "lantz_wtp1", 17520, q1), 
+    q1 = ifelse(authors == "lantz_wtp2", 18520, q1), 
     q1 = ifelse(authors == "rudd_wtp1", 1413412, q1),
     q1 = ifelse(authors == "rudd_wtp2", 1413412, q1),
     q1 = ifelse(authors == "he_wtp_ce", 1976843, q1),
     q1 = ifelse(authors == "he_wtp_cv", 1976843, q1),
-    q1 = ifelse(authors == "vossler_wtp", 1, q1), #check
+    q1 = ifelse(authors == "vossler_wtp", 129948359.5, q1), 
     
     #volunt, binary = 1 if payment mechanism is voluntary
     volunt = 0,
     volunt = ifelse(authors == "tkac_wtp", 1, 0),
-    volunt = ifelse(authors == "lantz_wtp1"|authors == "lantz_wtp2", 1, volunt), #check
+    volunt = ifelse(authors == "lantz_wtp1"|authors == "lantz_wtp2", 0, volunt), #check
     volunt = ifelse(authors == "vossler_wtp", 1, volunt), #check
     
     #lumpsun, binary = 1 if payment frequecy is once
     lumpsum = 1,
     lumpsum = ifelse(authors == "tkac_wtp", 0, 0),
-    lumpsum = ifelse(authors == "lantz_wtp1"|authors == "lantz_wtp2", 1, lumpsum), #check
-    lumpsun = ifelse(authors == "vossler_wtp", 1, lumpsum), #check
+    lumpsum = ifelse(authors == "lantz_wtp1"|authors == "lantz_wtp2", 0, lumpsum), 
+    lumpsun = ifelse(authors == "vossler_wtp", 0, lumpsum), 
     
     #nrev, binary = 1 paper is peer-reviewed
     nrev = 1,
     nrev = ifelse(authors == "tkac_wtp", 0, 0),
-    nrev = ifelse(authors == "lantz_wtp1"|authors == "lantz_wtp2", 1, nrev), #check
-    nrev = ifelse(authors == "vossler_wtp", 1, nrev), #check
+    nrev = ifelse(authors == "lantz_wtp1"|authors == "lantz_wtp2", 1, nrev),
+    nrev = ifelse(authors == "vossler_wtp", 1, nrev), 
     
     #median, binary = 1 if wtp is median value
     median = 0,
     median = ifelse(authors == "trenholm_wtp_30W"|authors == "trenholm_wtp_60W"|authors == "trenholm_wtp_30mAll"|
                       authors == "trenholm_wtp_60mAll", 1, 0),
-    median = ifelse(authors == "lantz_wtp1"|authors == "lantz_wtp2", 1, median), #check
-    median = ifelse(authors == "vossler_wtp", 1, median) #check
+    median = ifelse(authors == "lantz_wtp1"|authors == "lantz_wtp2", 0, median), 
+    median = ifelse(authors == "vossler_wtp", 0, median),
     
-  ) %>% View()
+    # choice experiment, binary = 1 SP is choice experiment
+    ce = 0,
+    ce = ifelse(authors == "tkac_wtp", 0, ce),
+    ce = ifelse(authors == "trenholm_wtp_30W"|authors == "trenholm_wtp_60W"|authors == "trenholm_wtp_30mAll"|
+                    authors == "trenholm_wtp_60mAll", 0, ce),
+    ce = ifelse(authors == "pattisson_wtp_2008l"|authors == "pattisson_wtp_80"|authors == "pattisson_wtp_83"|
+                    authors == "pattisson_wtp_89"|authors == "pattisson_wtp_100", 0, ce),
+    ce = ifelse(authors == "lantz_wtp1"|authors == "lantz_wtp2", 0, ce), 
+    ce = ifelse(authors == "rudd_wtp1"|authors == "rudd_wtp2", 1, ce),
+    ce = ifelse(authors == "he_wtp_ce", 1, ce),
+    ce = ifelse(authors == "he_wtp_cv", 0, ce),
+    ce = ifelse(authors == "vossler_wtp", 0, ce) 
+  )
 
  
  
