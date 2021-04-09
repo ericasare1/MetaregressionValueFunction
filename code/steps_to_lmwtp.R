@@ -35,6 +35,18 @@ he_wtp_ce <- 482               #estimate from choice experiment
 he_wtp_cv <- 465               #estimate from contingent valuation
 vossler_wtp <- 836
 
+#willingness to pay estimates from additional US studies
+#Johnson, Holland and Yao (2016). Individualized Geocoding in SP Questionnaires: Impl. for survey design and welfare est.
+johnson1_wtp_85 <- 1.09 * (4000/47)    # wtp is 1.09 per 47 vegetated acres: 4000 acres 85% of original 4700 acres
+johnson1_wtp_87 <- 1.09 * (4100/47)    # wtp is 1.09 per 47 vegetated acres: 4100 acres 87% of original 4700 acres
+johnson1_wtp_90 <- 1.09 * (4200/47)    # wtp is 1.09 per 47 vegetated acres: 4200 acres 90% of original 4700 acres
+johnson1_wtp_95 <- 1.09 * (4500/47)    # wtp is 1.09 per 47 vegetated acres: 4500 acres 95% of original 4700 acres
+
+#Johnson, Feurt and Holland (2015). Ecosystem serv and riparian land management in the Merriland, Branch Brook and Little River Watershed
+johnson2_wtp_85 <- 0.044 * (4000/47)    # wtp is 0.044 per 47 vegetated acres: 4000 acres 85% of original 4700 acres
+johnson2_wtp_87 <- 0.044 * (4100/47)    # wtp is 0.044 per 47 vegetated acres: 4100 acres 87% of original 4700 acres
+johnson2_wtp_95 <- 0.044 * (4500/47)    # wtp is 0.044 per 47 vegetated acres: 4500 acres 95% of original 4700 acres
+
 #Constructing data.frame
 canada_data <- data.frame(
   authors = c("tkac_wtp","trenholm_wtp_30W", "trenholm_wtp_60W", "trenholm_wtp_30mAll",
@@ -197,18 +209,6 @@ canada_data <- data.frame(
     median = ifelse(authors == "vossler_wtp", 1, median) #check
     
   ) %>% View()
-
-#willingness to pay estimates from additional US studies
-#Johnson, Holland and Yao (2016). Individualized Geocoding in SP Questionnaires: Impl. for survey design and welfare est.
-johnson1_wtp_85 <- 1.09 * (4000/47)    # wtp is 1.09 per 47 vegetated acres: 4000 acres 85% of original 4700 acres
-johnson1_wtp_87 <- 1.09 * (4100/47)    # wtp is 1.09 per 47 vegetated acres: 4100 acres 87% of original 4700 acres
-johnson1_wtp_90 <- 1.09 * (4200/47)    # wtp is 1.09 per 47 vegetated acres: 4200 acres 90% of original 4700 acres
-johnson1_wtp_95 <- 1.09 * (4500/47)    # wtp is 1.09 per 47 vegetated acres: 4500 acres 95% of original 4700 acres
-
-#Johnson, Feurt and Holland (2015). Ecosystem serv and riparian land management in the Merriland, Branch Brook and Little River Watershed
-johnson2_wtp_85 <- 0.044 * (4000/47)    # wtp is 0.044 per 47 vegetated acres: 4000 acres 85% of original 4700 acres
-johnson2_wtp_87 <- 0.044 * (4100/47)    # wtp is 0.044 per 47 vegetated acres: 4100 acres 87% of original 4700 acres
-johnson2_wtp_95 <- 0.044 * (4500/47)    # wtp is 0.044 per 47 vegetated acres: 4500 acres 95% of original 4700 acres
 
  
  
