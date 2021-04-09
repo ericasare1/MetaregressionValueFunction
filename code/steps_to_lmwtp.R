@@ -14,6 +14,26 @@ exch_rate_us_to_can <- read_csv("data/raw/exc_us_to_can.csv")
 wtp_orginal <- read_csv("data/raw/wtp_raw.csv")
 meta_data <- read_csv("data/Data_for_analysis_15_10.csv")
 
+#Willingness to pay values extracted from original studies (C$ at study year)
+tkac <- 146.98
+trenholm_30mWoodlotRiparian <- 31.56
+trenholm_60mWoodlotRiparian <- 19.38
+trenholm_30mAllLandTypes <- 24.7
+trenholm_60mAllLandTypes <- 14.7
+pattisson <- 
+pattisson <- 
+pattisson <- 
+pattisson <- 
+pattisson <- 
+pattisson <- 
+lantz1 <- 
+lantz2 <-
+rudd1 <- 11.6
+rudd2 <- 23.44
+he_ce <- 482
+he_cv <- 465
+vossler <- 836
+
 exchrate <- exch_rate_us_to_can %>% 
 	group_by(Year) %>%
 	summarize(av_monthly_excrate = mean(exchrate)) %>%
