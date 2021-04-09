@@ -4,7 +4,7 @@ if (!require(pacman)) {
 }
 
 # Load Packages
-p_load(tidyverse, dplyr, summarytools)
+p_load(tidyverse, dplyr, summarytools, cansim)
 
 # Import data 
 #-----------------------------------------------
@@ -219,11 +219,65 @@ canada_data <- data.frame(
     ce = ifelse(authors == "rudd_wtp1"|authors == "rudd_wtp2", 1, ce),
     ce = ifelse(authors == "he_wtp_ce", 1, ce),
     ce = ifelse(authors == "he_wtp_cv", 0, ce),
-    ce = ifelse(authors == "vossler_wtp", 0, ce) 
+    ce = ifelse(authors == "vossler_wtp", 0, ce),
+    
+    #study province
+    province = ifelse(authors == "tkac_wtp", "ON",0),
+    province = ifelse(authors == "trenholm_wtp_30W"|authors == "trenholm_wtp_60W"|authors == "trenholm_wtp_30mAll"|
+                  authors == "trenholm_wtp_60mAll", "NB", province),
+    province = ifelse(authors == "pattisson_wtp_2008l"|authors == "pattisson_wtp_80"|authors == "pattisson_wtp_83"|
+                  authors == "pattisson_wtp_89"|authors == "pattisson_wtp_100", "MB", province),
+    province = ifelse(authors == "lantz_wtp1"|authors == "lantz_wtp2", "ON", province), 
+    province = ifelse(authors == "rudd_wtp1"|authors == "rudd_wtp2", "ON", province),
+    province = ifelse(authors == "he_wtp_ce"|authors == "he_wtp_cv", "QE", province),
+    province = ifelse(authors == "vossler_wtp", "QE", province),
   )
 
- 
- 
+#Extracting 
+# Download Statistics Canada data from Cansim by table name
+# https://www150.statcan.gc.ca/t1/tbl1/en/cv.action?pid=1110019001
+cpi_sk <- get_cansim(1110019001) 
+
+#filters
+unique(cpi_sk$GEO) # "Quebec"  "Toronto, "New Brunswick"  "Manitoba" "Ontario" 
+unique(cpi_sk$`Income concept`)  #"Average after-tax income" 
+unique(cpi_sk$`Economic family type`) #"Economic families" 
+
+cpi_sk1 <- cpi_sk %>%
+  dplyr::filter(GEO == "Quebec"|GEO =="New Brunswick"| GEO =="Manitoba"|GEO =="Ontario" ,
+         `Income concept` == "Average after-tax income",
+         `Economic family type` == "Economic families",
+         REF_DATE == 2017) %>%
+  select(REF_DATE, GEO, VALUE) %>% 
+  column_to_rownames("GEO")
+
+inc_NB <- cpi_sk1["New Brunswick", "VALUE"]
+inc_QE <- cpi_sk1["Quebec", "VALUE"]
+inc_ON <- cpi_sk1["Ontario", "VALUE"]
+inc_MB <- cpi_sk1["Manitoba", "VALUE"]
+
+canada_data <- canada_data %>%
+  mutate(
+    lninc = ifelse(province == "NB", log(inc_NB), 0),
+    lninc = ifelse(province == "QE", log(inc_QE), lninc),
+    lninc = ifelse(province == "ON", log(inc_ON), lninc),
+    lninc = ifelse(province == "MB", log(inc_MB), lninc)
+  )
+
+canada_data %>% View()
+
+#study province
+province = ifelse(authors == "tkac_wtp", "ON",0),
+province = ifelse(authors == "trenholm_wtp_30W"|authors == "trenholm_wtp_60W"|authors == "trenholm_wtp_30mAll"|
+                    authors == "trenholm_wtp_60mAll", "NB", province),
+province = ifelse(authors == "pattisson_wtp_2008l"|authors == "pattisson_wtp_80"|authors == "pattisson_wtp_83"|
+                    authors == "pattisson_wtp_89"|authors == "pattisson_wtp_100", "MB", province),
+province = ifelse(authors == "lantz_wtp1"|authors == "lantz_wtp2", "ON", province), 
+province = ifelse(authors == "rudd_wtp1"|authors == "rudd_wtp2", "ON", province),
+province = ifelse(authors == "he_wtp_ce"|authors == "he_wtp_cv", "QE", province),
+province = ifelse(authors == "vossler_wtp", "QE", province),
+
+
 exchrate <- exch_rate_us_to_can %>% 
 	group_by(Year) %>%
 	summarize(av_monthly_excrate = mean(exchrate)) %>%
