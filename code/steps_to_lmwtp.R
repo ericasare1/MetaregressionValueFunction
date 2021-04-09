@@ -59,6 +59,7 @@ canada_data <- data.frame(
                                       he_wtp_ce,he_wtp_cv, vossler_wtp)
                           ) %>%
    dplyr::mutate(
+    us = 0,
     #year study was conducted
     year_study = ifelse(authors == "tkac_wtp", 2001, 0),
     year_study = ifelse(authors == "trenholm_wtp_30W"|authors == "trenholm_wtp_60W"|authors == "trenholm_wtp_30mAll"|
@@ -135,15 +136,15 @@ canada_data <- data.frame(
     cult = ifelse(authors == "vossler_wtp", 1, cult), 
     
     # forest, binary = 1 if wetland is in forest landscape
-    cult = ifelse(authors == "tkac_wtp", 0, 0),
-    cult = ifelse(authors == "trenholm_wtp_30W"|authors == "trenholm_wtp_60W"|authors == "trenholm_wtp_30mAll"|
-                    authors == "trenholm_wtp_60mAll", 1, cult),
-    cult = ifelse(authors == "pattisson_wtp_2008l"|authors == "pattisson_wtp_80"|authors == "pattisson_wtp_83"|
-                    authors == "pattisson_wtp_89"|authors == "pattisson_wtp_100", 0, cult),
-    cult = ifelse(authors == "lantz_wtp1"|authors == "lantz_wtp2", 0, cult), 
-    cult = ifelse(authors == "rudd_wtp1"|authors == "rudd_wtp2", 1, cult),
-    cult = ifelse(authors == "he_wtp_ce"|authors == "he_wtp_cv", 0, cult),
-    cult = ifelse(authors == "vossler_wtp", 1, cult), 
+    forest = ifelse(authors == "tkac_wtp", 0, 0),
+    forest = ifelse(authors == "trenholm_wtp_30W"|authors == "trenholm_wtp_60W"|authors == "trenholm_wtp_30mAll"|
+                    authors == "trenholm_wtp_60mAll", 1, forest),
+    forest = ifelse(authors == "pattisson_wtp_2008l"|authors == "pattisson_wtp_80"|authors == "pattisson_wtp_83"|
+                    authors == "pattisson_wtp_89"|authors == "pattisson_wtp_100", 0, forest),
+    forest = ifelse(authors == "lantz_wtp1"|authors == "lantz_wtp2", 0, forest), 
+    forest = ifelse(authors == "rudd_wtp1"|authors == "rudd_wtp2", 1, forest),
+    forest = ifelse(authors == "he_wtp_ce"|authors == "he_wtp_cv", 0, forest),
+    forest = ifelse(authors == "vossler_wtp", 1, forest), 
     
     # baseline acreage
     q0 = ifelse(authors == "tkac_wtp", 4200, 0),
@@ -263,20 +264,151 @@ canada_data <- canada_data %>%
     lninc = ifelse(province == "ON", log(inc_ON), lninc),
     lninc = ifelse(province == "MB", log(inc_MB), lninc)
   )
-
 canada_data %>% View()
 
-#study province
-province = ifelse(authors == "tkac_wtp", "ON",0),
-province = ifelse(authors == "trenholm_wtp_30W"|authors == "trenholm_wtp_60W"|authors == "trenholm_wtp_30mAll"|
-                    authors == "trenholm_wtp_60mAll", "NB", province),
-province = ifelse(authors == "pattisson_wtp_2008l"|authors == "pattisson_wtp_80"|authors == "pattisson_wtp_83"|
-                    authors == "pattisson_wtp_89"|authors == "pattisson_wtp_100", "MB", province),
-province = ifelse(authors == "lantz_wtp1"|authors == "lantz_wtp2", "ON", province), 
-province = ifelse(authors == "rudd_wtp1"|authors == "rudd_wtp2", "ON", province),
-province = ifelse(authors == "he_wtp_ce"|authors == "he_wtp_cv", "QE", province),
-province = ifelse(authors == "vossler_wtp", "QE", province),
+johnson1_wtp_85 <- 1.09 * (4000/47)    # wtp is 1.09 per 47 vegetated acres: 4000 acres 85% of original 4700 acres
+johnson1_wtp_87 <- 1.09 * (4100/47)    # wtp is 1.09 per 47 vegetated acres: 4100 acres 87% of original 4700 acres
+johnson1_wtp_90 <- 1.09 * (4200/47)    # wtp is 1.09 per 47 vegetated acres: 4200 acres 90% of original 4700 acres
+johnson1_wtp_95 <- 1.09 * (4500/47)    # wtp is 1.09 per 47 vegetated acres: 4500 acres 95% of original 4700 acres
 
+#Johnson, Feurt and Holland (2015). Ecosystem serv and riparian land management in the Merriland, Branch Brook and Little River Watershed
+johnson2_wtp_85 <- 0.044 * (4000/47)    # wtp is 0.044 per 47 vegetated acres: 4000 acres 85% of original 4700 acres
+johnson2_wtp_87 <- 0.044 * (4100/47)    # wtp is 0.044 per 47 vegetated acres: 4100 acres 87% of original 4700 acres
+johnson2_wtp_95 <- 0.044 * (4500/47)
+
+# Additional two USA studies
+add_us_data <- data.frame(
+  authors = c("johnson1_wtp_85","johnson1_wtp_87", "johnson1_wtp_90", "johnson1_wtp_95",
+              "johnson2_wtp_85","johnson2_wtp_87", "johnson2_wtp_95"),
+  wtp_original = c(johnson1_wtp_85,johnson1_wtp_87, johnson1_wtp_90, johnson1_wtp_95,
+                   johnson2_wtp_85, johnson2_wtp_87, johnson2_wtp_95))
+add_us_data <- add_us_data %>% 
+  dplyr::mutate(
+    #year study was conducted
+    year_study = ifelse(authors == "johnson1_wtp_85"|authors == "johnson1_wtp_87"|
+                          authors == "johnson1_wtp_90"| authors == "johnson1_wtp_95", 2015, 0),
+    year_study = ifelse(authors == "johnson1_wtp_85"|authors == "johnson1_wtp_87"|
+                          authors == "johnson1_wtp_95", 2016, year_study),   
+    #creating studyid to identify clusters of studies
+    studyid = ifelse(authors == "johnson1_wtp_85"|authors == "johnson1_wtp_87"|
+                          authors == "johnson1_wtp_90"| authors == "johnson1_wtp_95", 133, 0),
+    studyid = ifelse(authors == "johnson1_wtp_85"|authors == "johnson1_wtp_87"|
+                          authors == "johnson1_wtp_95", 134, studyid),
+    #creating US dummy
+    us = 1,
+  
+    #Creating binary variable = 1 if water is freshwater
+    wlfresh =  1,
+    #log of year; oldest year is 1991 in the US data set
+    lnyear = ifelse(authors == "johnson1_wtp_85"|authors == "johnson1_wtp_87"|
+                      authors == "johnson1_wtp_90"| authors == "johnson1_wtp_95", log(2015 - 1991) +1, 0),
+    lnyear = ifelse(authors == "johnson1_wtp_85"|authors == "johnson1_wtp_87"|
+                      authors == "johnson1_wtp_95", log(2016 - 1991) + 1, lnyear),
+    
+    # local: binary = 1 if study is at the subprovince or state
+    local = ifelse(authors == "johnson1_wtp_85"|authors == "johnson1_wtp_87"|
+                     authors == "johnson1_wtp_90"| authors == "johnson1_wtp_95", 1, 0),
+    local = ifelse(authors == "johnson1_wtp_85"|authors == "johnson1_wtp_87"|
+                     authors == "johnson1_wtp_95", 1, local),
+    # provisioning, binary = 1 if wetland produced provisioning ess 0 otherwise
+    prov = ifelse(authors == "johnson1_wtp_85"|authors == "johnson1_wtp_87"|
+                    authors == "johnson1_wtp_90"| authors == "johnson1_wtp_95", 1, 0),
+    prov = ifelse(authors == "johnson1_wtp_85"|authors == "johnson1_wtp_87"|
+                    authors == "johnson1_wtp_95", 1, prov),
+    # regulation ess, binary = 1 if wetland produced regulation ess
+    reg = ifelse(authors == "johnson1_wtp_85"|authors == "johnson1_wtp_87"|
+                   authors == "johnson1_wtp_90"| authors == "johnson1_wtp_95", 1, 0),
+    reg = ifelse(authors == "johnson1_wtp_85"|authors == "johnson1_wtp_87"|
+                   authors == "johnson1_wtp_95", 0, reg),
+    # cultural ess, binary = 1 if wetland produced cultural ess
+    cult = ifelse(authors == "johnson1_wtp_85"|authors == "johnson1_wtp_87"|
+                    authors == "johnson1_wtp_90"| authors == "johnson1_wtp_95", 0, 0),
+    cult = ifelse(authors == "johnson1_wtp_85"|authors == "johnson1_wtp_87"|
+                    authors == "johnson1_wtp_95", 0, cult),
+    # forest, binary = 1 if wetland is in forest landscape
+    forest = ifelse(authors == "johnson1_wtp_85"|authors == "johnson1_wtp_87"|
+                      authors == "johnson1_wtp_90"| authors == "johnson1_wtp_95", 0, 0),
+    forest = ifelse(authors == "johnson1_wtp_85"|authors == "johnson1_wtp_87"|
+                      authors == "johnson1_wtp_95", 1, forest),
+    # baseline acreage
+    q0 = ifelse(authors == "johnson1_wtp_85", 4200, 0),
+    q0 = ifelse(authors == "johnson1_wtp_87", 0, q0),
+    q0 = ifelse(authors == "johnson1_wtp_90", 0, q0),
+    q0 = ifelse(authors == "johnson1_wtp_95", 0, q0),
+    q0 = ifelse(authors == "johnson2_wtp_85", 0, q0),
+    q0 = ifelse(authors == "johnson2_wtp_87", 0, q0),
+    q0 = ifelse(authors == "johnson2_wtp_95", 0, q0),
+  
+    # policy acreage
+    q1 = ifelse(authors == "johnson1_wtp_85", 4200, 0),
+    q1 = ifelse(authors == "johnson1_wtp_87", 0, q1),
+    q1 = ifelse(authors == "johnson1_wtp_90", 0, q1),
+    q1 = ifelse(authors == "johnson1_wtp_95", 0, q1),
+    q1 = ifelse(authors == "johnson2_wtp_85", 0, q1),
+    q1 = ifelse(authors == "johnson2_wtp_87", 0, q1),
+    q1 = ifelse(authors == "johnson2_wtp_95", 0, q1),    
+    #volunt, binary = 1 if payment mechanism is voluntary
+    volunt = 0,
+    volunt = ifelse(authors == "johnson1_wtp_85"|authors == "johnson1_wtp_87"|
+                      authors == "johnson1_wtp_90"| authors == "johnson1_wtp_95", 1, 0),
+    volunt = ifelse(authors == "johnson1_wtp_85"|authors == "johnson1_wtp_87"
+                    | authors == "johnson1_wtp_95", 0, volunt), #check
+
+    #lumpsun, binary = 1 if payment frequecy is once
+    lumpsum = 1,
+    lumpsum = ifelse(authors == "johnson1_wtp_85"|authors == "johnson1_wtp_87"|
+                       authors == "johnson1_wtp_90"| authors == "johnson1_wtp_95", 0, 0),
+    lumpsum = ifelse(authors == "johnson1_wtp_85"|authors == "johnson1_wtp_87"
+                     | authors == "johnson1_wtp_95", 0, lumpsum), 
+    
+    #nrev, binary = 1 paper is peer-reviewed
+    nrev = 1,
+    nrev = ifelse(authors == "johnson1_wtp_85"|authors == "johnson1_wtp_87"|
+                    authors == "johnson1_wtp_90"| authors == "johnson1_wtp_95", 0, 0),
+    nrev = ifelse(authors == "johnson1_wtp_85"|authors == "johnson1_wtp_87"
+                  | authors == "johnson1_wtp_95", 1, nrev),
+
+    #median, binary = 1 if wtp is median value
+    median = 0,
+    median = ifelse(authors == "johnson1_wtp_85"|authors == "johnson1_wtp_87"|
+                      authors == "johnson1_wtp_90"| authors == "johnson1_wtp_95", 1, 0),
+    median = ifelse(authors == "johnson1_wtp_85"|authors == "johnson1_wtp_87"
+                    |authors == "johnson1_wtp_95", 0, median), 
+
+    # choice experiment, binary = 1 SP is choice experiment
+    ce = 0,
+    ce = ifelse(authors == "johnson1_wtp_85"|authors == "johnson1_wtp_87"|
+                  authors == "johnson1_wtp_90"| authors == "johnson1_wtp_95", 0, ce),
+    ce = ifelse(authors == "johnson1_wtp_85"|authors == "johnson1_wtp_87"
+                |authors == "johnson1_wtp_95", 0, ce),
+    #study province
+    province = "Maine",
+    lninc = 0
+  )
+
+#selecting relevant columns
+canada_data <- canada_data %>%
+  mutate(lnwtp = 0,
+         us = 0) %>%
+  select(authors, studyid, lnwtp, wtp_original, lnyear, lninc, local, prov, reg, cult, forest, q0, q1, volunt, lumpsum, ce, nrev, median, us)
+
+add_us_data <- add_us_data %>% 
+  mutate(lnwtp = 0,
+         us=1) %>%
+  select(authors, studyid, lnwtp, wtp_original, lnyear, lninc, local, prov, reg, cult, forest, q0, q1, volunt, lumpsum, ce, nrev, median, us)
+
+us_data <- meta_data %>%
+  mutate(wtp_original = 0,
+         us = 1,
+         authors = "us") %>%
+  filter(canada == 0) %>%
+  select(authors, studyid, lnwtp, wtp_original, lnyear, lninc, local, prov, reg, cult, forest, q0, q1, volunt, lumpsum, ce, nrev, median)
+
+us_canada <- canada_data %>%
+  add_row(add_us_data) %>%
+  add_row(us_data)
+
+us_canada %>% View()
 
 exchrate <- exch_rate_us_to_can %>% 
 	group_by(Year) %>%
