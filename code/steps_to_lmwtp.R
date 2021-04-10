@@ -1,3 +1,5 @@
+#<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< Data Management: Extracting and creating final data for estimation<<<<<<<
+# loading the required packages
 if (!require(pacman)) {
 	install.packages("pacman")
 	library(pacman)
@@ -41,7 +43,7 @@ canada_data <- data.frame(
                                       pattisson_wtp_89, pattisson_wtp_100,lantz_wtp1,lantz_wtp2,rudd_wtp1, rudd_wtp2,
                                       he_wtp_ce,he_wtp_cv, vossler_wtp)
                           ) %>%
-   dplyr::mutate(
+    dplyr::mutate(
     us = 0,
     #year study was conducted
     year_study = ifelse(authors == "tkac_wtp", 2001, 0),
@@ -95,7 +97,6 @@ canada_data <- data.frame(
     prov = ifelse(authors == "rudd_wtp1"|authors == "rudd_wtp2", 1, prov),
     prov = ifelse(authors == "he_wtp_ce"|authors == "he_wtp_cv", 0, prov),
     prov = ifelse(authors == "vossler_wtp", 1, prov), 
-    
     # regulation ess, binary = 1 if wetland produced regulation ess
     reg = ifelse(authors == "tkac_wtp", 1, 0),
     reg = ifelse(authors == "trenholm_wtp_30W"|authors == "trenholm_wtp_60W"|authors == "trenholm_wtp_30mAll"|
@@ -106,7 +107,6 @@ canada_data <- data.frame(
     reg = ifelse(authors == "rudd_wtp1"|authors == "rudd_wtp2", 1, reg),
     reg = ifelse(authors == "he_wtp_ce"|authors == "he_wtp_cv", 1, reg),
     reg = ifelse(authors == "vossler_wtp", 1, reg), 
-    
     # cultural ess, binary = 1 if wetland produced cultural ess
     cult = ifelse(authors == "tkac_wtp", 0, 0),
     cult = ifelse(authors == "trenholm_wtp_30W"|authors == "trenholm_wtp_60W"|authors == "trenholm_wtp_30mAll"|
@@ -117,7 +117,6 @@ canada_data <- data.frame(
     cult = ifelse(authors == "rudd_wtp1"|authors == "rudd_wtp2", 1, cult),
     cult = ifelse(authors == "he_wtp_ce"|authors == "he_wtp_cv", 0, cult),
     cult = ifelse(authors == "vossler_wtp", 1, cult), 
-    
     # forest, binary = 1 if wetland is in forest landscape
     forest = ifelse(authors == "tkac_wtp", 0, 0),
     forest = ifelse(authors == "trenholm_wtp_30W"|authors == "trenholm_wtp_60W"|authors == "trenholm_wtp_30mAll"|
@@ -128,7 +127,6 @@ canada_data <- data.frame(
     forest = ifelse(authors == "rudd_wtp1"|authors == "rudd_wtp2", 1, forest),
     forest = ifelse(authors == "he_wtp_ce"|authors == "he_wtp_cv", 0, forest),
     forest = ifelse(authors == "vossler_wtp", 1, forest), 
-    
     # baseline acreage
     q0 = ifelse(authors == "tkac_wtp", 4200, 0),
     q0 = ifelse(authors == "trenholm_wtp_30W", 0, q0),
@@ -217,7 +215,7 @@ canada_data <- data.frame(
     province = ifelse(authors == "vossler_wtp", "QE", province),
   )
 
-#Extracting 
+#Extracting Income information from Canada Census 
 # Download Statistics Canada data from Cansim by table name
 # https://www150.statcan.gc.ca/t1/tbl1/en/cv.action?pid=1110019001
 inc_canada <- get_cansim(1110019001) 
@@ -248,7 +246,7 @@ canada_data <- canada_data %>%
     lninc = ifelse(province == "MB", log(inc_MB), lninc)
   )
 canada_data %>% View()
-
+#<<<<<<<<<<<<<<<<<<<<<<<<<<< Additional US studies from Johnson et al (1 and 2) <<<<<<<<<<<<<<<<<<
 #willingness to pay estimates from additional US studies
 #Johnson, Holland and Yao (2016). Individualized Geocoding in SP Questionnaires: Impl. for survey design and welfare est.
 johnson1_wtp_85 <- 1.09 * (4000/47)    # wtp is 1.09 per 47 vegetated acres: 4000 acres 85% of original 4700 acres
@@ -410,6 +408,7 @@ us_canada <- canada_data %>%
 us_canada %>% View() 
 
 #  >>>>>>>>>>>>>>>>> Conversions <<<<<<<<<<<<<<<<<<<<<
+# Extracting consumer price index for Canada
 cpi_canada <- get_cansim(1810000401) %>%
   filter(`Products and product groups` == "All-items",
          GEO == "Canada") %>%
@@ -421,21 +420,27 @@ cpi_canada <- get_cansim(1810000401) %>%
   filter(year > 2000) %>%
   column_to_rownames("year") 
 
+#extracting the cpi for 2017.
 avcpi_can_2017 <- cpi_canada["2017", "cpi_annual"]
 
+#Creating the relative CPI dataframe
 rel_cpi_can <- cpi_canada %>% rownames_to_column("year") %>% 
 	mutate(rel_cpi = avcpi_can_2017/cpi_annual) %>% column_to_rownames("year")
 
+#<-------------- Extracting the CPI data for US
 cpi_us <- read_csv("data/cpi_us_csv.csv")
 
 rel_cpi_us <- cpi_us %>% 
   column_to_rownames("year")
 
+# CPI for 2017
 avcpi_us_2017 <- rel_cpi_us["2017", "cpi"]
 
+#Making the Relative CPI Data  for the US
 rel_cpi_us <- rel_cpi_us %>% rownames_to_column("year") %>%
   mutate(rel_cpi = avcpi_us_2017/cpi) %>% column_to_rownames("year")
-  
+ 
+#Extracting appropriate relative CPI for the study years for both US and Canada studies
 us_study_relcpi <- rel_cpi_us["2017", "rel_cpi"]
 johnson1_relcpi <- rel_cpi_us["2016", "rel_cpi"]
 johnson2_relcpi <- rel_cpi_us["2015", "rel_cpi"]
@@ -447,7 +452,7 @@ rudd <- rel_cpi_can["2011", "rel_cpi"]
 he <- rel_cpi_can["2013", "rel_cpi"]
 vossler <- rel_cpi_can["2014", "rel_cpi"]
 
-
+#Converting the wtp estimates to 2017 Canadian prices (C$WTP/Household/Year)
 transformed_wtp <- us_canada %>%
 	dplyr::mutate(
 		   rel_cpi = ifelse(authors == "us", us_study_relcpi, 0),
@@ -470,4 +475,4 @@ transformed_wtp <- us_canada %>%
 		   lnwtp = log(wtp_2017)) 
 
 transformed_wtp %>% View()
-write.csv(transformed_wtp, "data/Data_for_analysis_15_10.csv")
+write.csv(transformed_wtp, "data/Data_for_analysis_15_10.csv")  # Final US-Canada data for estimations.
