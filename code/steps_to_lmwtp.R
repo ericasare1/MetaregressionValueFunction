@@ -9,11 +9,7 @@ p_load(tidyverse, dplyr, summarytools, cansim)
 # Import data 
 #-----------------------------------------------
 cpi_us <- read_csv("data/raw/cpi_usa.csv") # this loads the consumer price index for US: 
-exch_rate_us_to_can <- read_csv("data/raw/exc_us_to_can.csv")
-wtp_orginal <- read_csv("data/raw/wtp_raw.csv")
-meta_data <- read_csv("data/Data_for_analysis_15_10.csv") 
-meta_data %>% View()
-colnames(meta_data)
+
 
 #Willingness to pay values extracted from original Canadian studies (C$ at study year)
 tkac_wtp <- 146.98
@@ -224,14 +220,14 @@ canada_data <- data.frame(
 #Extracting 
 # Download Statistics Canada data from Cansim by table name
 # https://www150.statcan.gc.ca/t1/tbl1/en/cv.action?pid=1110019001
-cpi_canada <- get_cansim(1110019001) 
+inc_canada <- get_cansim(1110019001) 
 
 #filters
-unique(cpi_canada$GEO) # "Quebec"  "Toronto, "New Brunswick"  "Manitoba" "Ontario" 
-unique(cpi_canada$`Income concept`)  #"Average after-tax income" 
-unique(cpi_canada$`Economic family type`) #"Economic families" 
+unique(inc_canada$GEO) # "Quebec"  "Toronto, "New Brunswick"  "Manitoba" "Ontario" 
+unique(inc_canada$`Income concept`)  #"Average after-tax income" 
+unique(inc_canada$`Economic family type`) #"Economic families" 
 
-cpi_canada1 <- cpi_canada%>%
+inc_canada1 <- inc_canada%>%
   dplyr::filter(GEO == "Quebec"|GEO =="New Brunswick"| GEO =="Manitoba"|GEO =="Ontario" ,
          `Income concept` == "Median total income",  #I used this to be consistent with income variable from the US
          `Economic family type` == "Economic families",
@@ -388,20 +384,23 @@ add_us_data %>% View()
 canada_data <- canada_data %>%
   mutate(lnwtp = 0,
          us = 0) %>%
-  select(authors, studyid, lnwtp, wtp_original, lnyear, lninc, local, prov, reg, cult, forest, q0, q1, volunt, lumpsum, ce, nrev, median, us)
+  select(authors, studyid, lnwtp, wtp_original, lnyear, lninc, local, 
+         prov, reg, cult, forest, q0, q1, volunt, lumpsum, ce, nrev, median, us)
 
 add_us_data <- add_us_data %>% 
   mutate(lnwtp = 0,
          us=1) %>%
-  select(authors, studyid, lnwtp, wtp_original, lnyear, lninc, local, prov, reg, cult, forest, q0, q1, volunt, lumpsum, ce, nrev, median, us)
+  select(authors, studyid, lnwtp, wtp_original, lnyear, lninc, local,
+         prov, reg, cult, forest, q0, q1, volunt, lumpsum, ce, nrev, median, us)
 
 us_data <- read_csv("data/us_klausdata.csv") %>%
   mutate( us = 1,
          authors = "us",
-         wtp_original = exp(lninc) * 1.3, # use exp to transform logincome and convert to C$ with 2017 us-can exc rate
-         lninc = log(wtp_original)) %>%  
+         wtp_original = exp(lnwtp) * 1.3, # use exp to transform lnwtp and convert to C$ with 2017 us-can exc rate
+         lninc = log(exp(lninc) * 1.3)) %>%  
   filter(canada == 0) %>%
-  select(authors, studyid, lnwtp, wtp_original, lnyear, lninc, local, prov, reg, cult, forest, q0, q1, volunt, lumpsum, ce, nrev, median, us)
+  select(authors, studyid, lnwtp, wtp_original, lnyear, lninc, local, prov, 
+         reg, cult, forest, q0, q1, volunt, lumpsum, ce, nrev, median, us)
 us_data %>% View()
 
 us_canada <- canada_data %>%
@@ -422,20 +421,24 @@ cpi_canada <- get_cansim(1810000401) %>%
   filter(year > 2000) %>%
   column_to_rownames("year") 
 
-cpi_canada %>% View()
-
 avcpi_can_2017 <- cpi_canada["2017", "cpi_annual"]
 
-rel_cpi_can <- cpi_canada  %>% 
-	mutate(rel_cpi = avcpi_can_2017/cpi_annual) %>% View()
+rel_cpi_can <- cpi_canada %>% rownames_to_column("year") %>% 
+	mutate(rel_cpi = avcpi_can_2017/cpi_annual) %>% column_to_rownames("year")
+
+cpi_us <- read_csv("data/cpi_us_csv.csv")
 
 rel_cpi_us <- cpi_us %>% 
-  group_by(year) %>% 
-  summarise(average_us_cpi = mean(us_cpi)) %>% 
-  mutate(rel_cpi = avcpi_us_2018/average_us_cpi) %>%
-  column_to_rownames("year") 
+  column_to_rownames("year")
 
+avcpi_us_2017 <- rel_cpi_us["2017", "cpi"]
+
+rel_cpi_us <- rel_cpi_us %>% rownames_to_column("year") %>%
+  mutate(rel_cpi = avcpi_us_2017/cpi) %>% column_to_rownames("year")
+  
 us_study_relcpi <- rel_cpi_us["2017", "rel_cpi"]
+johnson1_relcpi <- rel_cpi_us["2016", "rel_cpi"]
+johnson2_relcpi <- rel_cpi_us["2015", "rel_cpi"]
 tkac <- rel_cpi_can["2001", "rel_cpi"]
 trenholm <- rel_cpi_can["2007", "rel_cpi"]
 pattisson <- rel_cpi_can["2008", "rel_cpi"]
@@ -445,29 +448,26 @@ he <- rel_cpi_can["2013", "rel_cpi"]
 vossler <- rel_cpi_can["2014", "rel_cpi"]
 
 
-exchrate <- exch_rate_us_to_can %>% 
-  group_by(Year) %>%
-  summarize(av_monthly_excrate = mean(exchrate)) %>%
-  column_to_rownames("Year") 
+transformed_wtp <- us_canada %>%
+	dplyr::mutate(
+		   rel_cpi = ifelse(authors == "us", us_study_relcpi, 0),
+		   rel_cpi = ifelse(authors == "johnson1_wtp_85"|authors == "johnson1_wtp_87"|
+		                      authors == "johnson1_wtp_90"| authors == "johnson1_wtp_95",
+		                    johnson1_relcpi, rel_cpi),
+		   rel_cpi = ifelse(authors == "johnson2_wtp_85"|authors == "johnson2_wtp_87"|
+		                      authors == "johnson2_wtp_90"| authors == "johnson2_wtp_95",
+		                    johnson2_relcpi, rel_cpi),
+		   rel_cpi = ifelse(authors == "tkac_wtp", tkac, rel_cpi),
+		   rel_cpi = ifelse(authors == "trenholm_wtp_30W"|authors == "trenholm_wtp_60W"|authors == "trenholm_wtp_30mAll"|
+		                      authors == "trenholm_wtp_60mAll", trenholm, rel_cpi),
+		   rel_cpi = ifelse(authors == "pattisson_wtp_2008l"|authors == "pattisson_wtp_80"|authors == "pattisson_wtp_83"|
+		                      authors == "pattisson_wtp_89"|authors == "pattisson_wtp_100", pattisson, rel_cpi),
+		   rel_cpi = ifelse(authors == "lantz_wtp1"|authors == "lantz_wtp2", lantz, rel_cpi),
+		   rel_cpi = ifelse(authors == "rudd_wtp1"|authors == "rudd_wtp2", rudd, rel_cpi),
+		   rel_cpi = ifelse(authors == "he_wtp_ce"|authors == "he_wtp_cv", he, rel_cpi),
+		   rel_cpi = ifelse(authors == "vossler_wtp", vossler, rel_cpi),
+		   wtp_2017 = rel_cpi * wtp_original,
+		   lnwtp = log(wtp_2017)) 
 
-exchrate_2018 <- exchrate["2017", "av_monthly_excrate"]
-
-transformed_wtp <- wtp_orginal %>%
-	mutate(rel_cpi = 0,
-		   rel_cpi = ifelse(Author == "us_study", us_study_relcpi, rel_cpi),
-		   rel_cpi = ifelse(Author == "tkac", tkac, rel_cpi),
-		   rel_cpi = ifelse(Author == "trenholm", trenholm, rel_cpi),
-		   rel_cpi = ifelse(Author == "pattisson", pattisson, rel_cpi),
-		   rel_cpi = ifelse(Author == "lantz", lantz, rel_cpi),
-		   rel_cpi = ifelse(Author == "rudd", rudd, rel_cpi),
-		   rel_cpi = ifelse(Author == "he", he, rel_cpi),
-		   rel_cpi = ifelse(Author == "vossler", vossler, rel_cpi),
-		   wtp_original = ori_wtp_us_in_lg,
-		   wtp_original = ifelse(Author == "us_study", exp(wtp_original)-1, wtp_original),
-		   wtp_2018 = rel_cpi * wtp_original,
-		   wtp_2018can = ifelse(Author == "us_study", wtp_2018*exchrate_2018, wtp_2018),
-		   lnwtp = log(wtp_2018can)) %>% 
-	select(obsid,lnwtp)
-
-meta_data %>% select(-c(lnwtp)) %>% inner_join(transformed_wtp, by = "obsid") %>% 
-	write.csv("data/Data_for_analysis_15_10.csv")
+transformed_wtp %>% View()
+write.csv(transformed_wtp, "data/Data_for_analysis_15_10.csv")
