@@ -25,9 +25,16 @@ df <- df %>%
          lnq_change = log(q1-q0),
          lnwtp2 = lnwtp - lnq_change
   ) 
+
 df %>% View()
 df %>% filter(us == 1) %>% nrow() # number of observation of us studies
 df %>% filter(us == 0) %>% nrow() # number of observation of canadian studies
+
+#dataframe to create correlation map from more relevant model variables
+df_cor <- df %>%  
+  dplyr::select(lnwtp, lnwtp2, wtp_2017, q0, q1, lnyear, local, prov, reg, cult, lninc, forest, 
+                volunt, lumpsum, ce, nrev, median, lnq0, lnq_change, us)
+
 
 #----------------------------------------------Data Exploration------------------------
 #A. checking the distribution of dependent variable
@@ -43,15 +50,19 @@ ggplot(df, aes(x= id_study, y = lnwtp, fill = as.character(us))) +
 #C. checking for outliers
 boxplot(df$lnwtp) 
 
-#a)....Checking for multicollinearity with correlation map
-ols <- lm(lnwtp ~ lnyear  +
-		  	local + 
-		  	prov + reg + cult + lninc +
-		  	forest + 
-		  	volunt + lumpsum + ce + nrev + lnq_change + us, data  = df)
-car::vif(ols) 
+#a)....Checking for multicollinearity with correlation map: Will use VIF to formally test it
+#1. Correlation matrix
+cormat <- round(cor(df_cor),2)
+head(cormat)
+#Reshape above matrix
+library(reshape2)
+melted_cormat <- melt(cormat)
+head(melted_cormat)
+#correlation heat map
+ggplot(data = melted_cormat, aes(x=Var1, y=Var2, fill=value)) + 
+  geom_tile()
 
-# Model Estimation
+#-------------------Model Estimation : Results of Exploratory Exercise looks good to me
 #A. OLS
 #1. With only the log of the change in baseline and post improvement wetland acres 
 lm_restricted <- lm(lnwtp ~ lnq_change, data= df)
