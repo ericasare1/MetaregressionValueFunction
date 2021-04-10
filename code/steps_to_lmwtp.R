@@ -286,14 +286,14 @@ add_us_data <- add_us_data %>%
   dplyr::mutate(
     #year study was conducted
     year_study = ifelse(authors == "johnson1_wtp_85"|authors == "johnson1_wtp_87"|
-                          authors == "johnson1_wtp_90"| authors == "johnson1_wtp_95", 2015, 0),
-    year_study = ifelse(authors == "johnson1_wtp_85"|authors == "johnson1_wtp_87"|
-                          authors == "johnson1_wtp_95", 2016, year_study),   
+                          authors == "johnson1_wtp_90"| authors == "johnson1_wtp_95", 2016, 0),
+    year_study = ifelse(authors == "johnson2_wtp_85"|authors == "johnson2_wtp_87"|
+                          authors == "johnson2_wtp_95", 2015, year_study),   
     #creating studyid to identify clusters of studies
     studyid = ifelse(authors == "johnson1_wtp_85"|authors == "johnson1_wtp_87"|
                           authors == "johnson1_wtp_90"| authors == "johnson1_wtp_95", 133, 0),
-    studyid = ifelse(authors == "johnson1_wtp_85"|authors == "johnson1_wtp_87"|
-                          authors == "johnson1_wtp_95", 134, studyid),
+    studyid = ifelse(authors == "johnson2_wtp_85"|authors == "johnson2_wtp_87"|
+                          authors == "johnson2_wtp_95", 134, studyid),
     #creating US dummy
     us = 1,
   
@@ -301,35 +301,35 @@ add_us_data <- add_us_data %>%
     wlfresh =  1,
     #log of year; oldest year is 1991 in the US data set
     lnyear = ifelse(authors == "johnson1_wtp_85"|authors == "johnson1_wtp_87"|
-                      authors == "johnson1_wtp_90"| authors == "johnson1_wtp_95", log(2015 - 1991) +1, 0),
-    lnyear = ifelse(authors == "johnson1_wtp_85"|authors == "johnson1_wtp_87"|
-                      authors == "johnson1_wtp_95", log(2016 - 1991) + 1, lnyear),
+                      authors == "johnson1_wtp_90"| authors == "johnson1_wtp_95", log(2016 - 1991) +1, 0),
+    lnyear = ifelse(authors == "johnson2_wtp_85"|authors == "johnson2_wtp_87"|
+                      authors == "johnson2_wtp_95", log(2015 - 1991) + 1, lnyear),
     
     # local: binary = 1 if study is at the subprovince or state
     local = ifelse(authors == "johnson1_wtp_85"|authors == "johnson1_wtp_87"|
                      authors == "johnson1_wtp_90"| authors == "johnson1_wtp_95", 1, 0),
-    local = ifelse(authors == "johnson1_wtp_85"|authors == "johnson1_wtp_87"|
-                     authors == "johnson1_wtp_95", 1, local),
+    local = ifelse(authors == "johnson2_wtp_85"|authors == "johnson2_wtp_87"|
+                     authors == "johnson2_wtp_95", 1, local),
     # provisioning, binary = 1 if wetland produced provisioning ess 0 otherwise
     prov = ifelse(authors == "johnson1_wtp_85"|authors == "johnson1_wtp_87"|
                     authors == "johnson1_wtp_90"| authors == "johnson1_wtp_95", 1, 0),
-    prov = ifelse(authors == "johnson1_wtp_85"|authors == "johnson1_wtp_87"|
-                    authors == "johnson1_wtp_95", 1, prov),
+    prov = ifelse(authors == "johnson2_wtp_85"|authors == "johnson2_wtp_87"|
+                    authors == "johnson2_wtp_95", 1, prov),
     # regulation ess, binary = 1 if wetland produced regulation ess
     reg = ifelse(authors == "johnson1_wtp_85"|authors == "johnson1_wtp_87"|
                    authors == "johnson1_wtp_90"| authors == "johnson1_wtp_95", 1, 0),
-    reg = ifelse(authors == "johnson1_wtp_85"|authors == "johnson1_wtp_87"|
-                   authors == "johnson1_wtp_95", 0, reg),
+    reg = ifelse(authors == "johnson2_wtp_85"|authors == "johnson2_wtp_87"|
+                   authors == "johnson2_wtp_95", 0, reg),
     # cultural ess, binary = 1 if wetland produced cultural ess
     cult = ifelse(authors == "johnson1_wtp_85"|authors == "johnson1_wtp_87"|
                     authors == "johnson1_wtp_90"| authors == "johnson1_wtp_95", 0, 0),
-    cult = ifelse(authors == "johnson1_wtp_85"|authors == "johnson1_wtp_87"|
-                    authors == "johnson1_wtp_95", 0, cult),
+    cult = ifelse(authors == "johnson2_wtp_85"|authors == "johnson2_wtp_87"|
+                    authors == "johnson2_wtp_95", 0, cult),
     # forest, binary = 1 if wetland is in forest landscape
     forest = ifelse(authors == "johnson1_wtp_85"|authors == "johnson1_wtp_87"|
                       authors == "johnson1_wtp_90"| authors == "johnson1_wtp_95", 0, 0),
-    forest = ifelse(authors == "johnson1_wtp_85"|authors == "johnson1_wtp_87"|
-                      authors == "johnson1_wtp_95", 1, forest),
+    forest = ifelse(authors == "johnson2_wtp_85"|authors == "johnson2_wtp_87"|
+                      authors == "johnson2_wtp_95", 1, forest),
     # baseline acreage
     q0 = ifelse(authors == "johnson1_wtp_85", 4200, 0),
     q0 = ifelse(authors == "johnson1_wtp_87", 0, q0),
@@ -350,37 +350,37 @@ add_us_data <- add_us_data %>%
     #volunt, binary = 1 if payment mechanism is voluntary
     volunt = 0,
     volunt = ifelse(authors == "johnson1_wtp_85"|authors == "johnson1_wtp_87"|
-                      authors == "johnson1_wtp_90"| authors == "johnson1_wtp_95", 1, 0),
-    volunt = ifelse(authors == "johnson1_wtp_85"|authors == "johnson1_wtp_87"
-                    | authors == "johnson1_wtp_95", 0, volunt), #check
+                      authors == "johnson1_wtp_90"| authors == "johnson1_wtp_95", 0, 0),
+    volunt = ifelse(authors == "johnson2_wtp_85"|authors == "johnson2_wtp_87"
+                    | authors == "johnson2_wtp_95", 0, volunt), #check
 
     #lumpsun, binary = 1 if payment frequecy is once
     lumpsum = 1,
     lumpsum = ifelse(authors == "johnson1_wtp_85"|authors == "johnson1_wtp_87"|
                        authors == "johnson1_wtp_90"| authors == "johnson1_wtp_95", 0, 0),
-    lumpsum = ifelse(authors == "johnson1_wtp_85"|authors == "johnson1_wtp_87"
-                     | authors == "johnson1_wtp_95", 0, lumpsum), 
+    lumpsum = ifelse(authors == "johnson2_wtp_85"|authors == "johnson2_wtp_87"
+                     | authors == "johnson2_wtp_95", 0, lumpsum), 
     
     #nrev, binary = 1 paper is peer-reviewed
     nrev = 1,
     nrev = ifelse(authors == "johnson1_wtp_85"|authors == "johnson1_wtp_87"|
-                    authors == "johnson1_wtp_90"| authors == "johnson1_wtp_95", 0, 0),
-    nrev = ifelse(authors == "johnson1_wtp_85"|authors == "johnson1_wtp_87"
-                  | authors == "johnson1_wtp_95", 1, nrev),
+                    authors == "johnson1_wtp_90"| authors == "johnson1_wtp_95", 1, 0),
+    nrev = ifelse(authors == "johnson2_wtp_85"|authors == "johnson2_wtp_87"
+                  | authors == "johnson2_wtp_95", 0, nrev),
 
     #median, binary = 1 if wtp is median value
     median = 0,
     median = ifelse(authors == "johnson1_wtp_85"|authors == "johnson1_wtp_87"|
-                      authors == "johnson1_wtp_90"| authors == "johnson1_wtp_95", 1, 0),
-    median = ifelse(authors == "johnson1_wtp_85"|authors == "johnson1_wtp_87"
-                    |authors == "johnson1_wtp_95", 0, median), 
+                      authors == "johnson1_wtp_90"| authors == "johnson1_wtp_95", 0, 0),
+    median = ifelse(authors == "johnson2_wtp_85"|authors == "johnson2_wtp_87"
+                    |authors == "johnson2_wtp_95", 0, median), 
 
     # choice experiment, binary = 1 SP is choice experiment
     ce = 0,
     ce = ifelse(authors == "johnson1_wtp_85"|authors == "johnson1_wtp_87"|
-                  authors == "johnson1_wtp_90"| authors == "johnson1_wtp_95", 0, ce),
-    ce = ifelse(authors == "johnson1_wtp_85"|authors == "johnson1_wtp_87"
-                |authors == "johnson1_wtp_95", 0, ce),
+                  authors == "johnson1_wtp_90"| authors == "johnson1_wtp_95", 1, ce),
+    ce = ifelse(authors == "johnson2_wtp_85"|authors == "johnson2_wtp_87"
+                |authors == "johnson2_wtp_95", 1, ce),
     #study province
     province = "Maine",
     lninc = 0
@@ -419,28 +419,21 @@ cpi_canada <- get_cansim(1810000401) %>%
   rename(cpi = VALUE) %>% 
   group_by(year) %>%
   summarise(cpi_annual = mean(cpi)) %>%
-  filter(year > 2000)
+  filter(year > 2000) %>%
+  column_to_rownames("year") 
 
 cpi_canada %>% View()
-exchrate <- exch_rate_us_to_can %>% 
-	group_by(Year) %>%
-	summarize(av_monthly_excrate = mean(exchrate)) %>%
-	column_to_rownames("Year") 
 
-avcpi_us_2018 <- 105.9447
-avcpi_can_2018 <- 104
+avcpi_can_2017 <- cpi_canada["2017", "cpi_annual"]
+
+rel_cpi_can <- cpi_canada  %>% 
+	mutate(rel_cpi = avcpi_can_2017/cpi_annual) %>% View()
 
 rel_cpi_us <- cpi_us %>% 
-	group_by(year) %>% 
-	summarise(average_us_cpi = mean(us_cpi)) %>% 
-	mutate(rel_cpi = avcpi_us_2018/average_us_cpi) %>%
-	column_to_rownames("year") 
-
-rel_cpi_can <- cpi_can %>% 
-	group_by(year) %>% 
-	summarise(average_can_cpi = mean(cpi_can))  %>%
-	mutate(rel_cpi = avcpi_can_2018/average_can_cpi) %>%
-	column_to_rownames("year") 
+  group_by(year) %>% 
+  summarise(average_us_cpi = mean(us_cpi)) %>% 
+  mutate(rel_cpi = avcpi_us_2018/average_us_cpi) %>%
+  column_to_rownames("year") 
 
 us_study_relcpi <- rel_cpi_us["2017", "rel_cpi"]
 tkac <- rel_cpi_can["2001", "rel_cpi"]
@@ -450,6 +443,12 @@ lantz <- rel_cpi_can["2009", "rel_cpi"]
 rudd <- rel_cpi_can["2011", "rel_cpi"]
 he <- rel_cpi_can["2013", "rel_cpi"]
 vossler <- rel_cpi_can["2014", "rel_cpi"]
+
+
+exchrate <- exch_rate_us_to_can %>% 
+  group_by(Year) %>%
+  summarize(av_monthly_excrate = mean(exchrate)) %>%
+  column_to_rownames("Year") 
 
 exchrate_2018 <- exchrate["2018", "av_monthly_excrate"]
 
