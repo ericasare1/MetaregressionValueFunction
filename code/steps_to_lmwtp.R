@@ -9,7 +9,6 @@ p_load(tidyverse, dplyr, summarytools, cansim)
 # Import data 
 #-----------------------------------------------
 cpi_us <- read_csv("data/raw/cpi_usa.csv") # this loads the consumer price index for US: 
-cpi_can <- read_csv("data/raw/cpi_canada.csv") 
 exch_rate_us_to_can <- read_csv("data/raw/exc_us_to_can.csv")
 wtp_orginal <- read_csv("data/raw/wtp_raw.csv")
 meta_data <- read_csv("data/Data_for_analysis_15_10.csv") 
@@ -34,18 +33,6 @@ rudd_wtp2 <- 23.44      # wetlands - large improvements
 he_wtp_ce <- 482               #estimate from choice experiment
 he_wtp_cv <- 465               #estimate from contingent valuation
 vossler_wtp <- 836
-
-#willingness to pay estimates from additional US studies
-#Johnson, Holland and Yao (2016). Individualized Geocoding in SP Questionnaires: Impl. for survey design and welfare est.
-johnson1_wtp_85 <- 1.09 * (4000/47)    # wtp is 1.09 per 47 vegetated acres: 4000 acres 85% of original 4700 acres
-johnson1_wtp_87 <- 1.09 * (4100/47)    # wtp is 1.09 per 47 vegetated acres: 4100 acres 87% of original 4700 acres
-johnson1_wtp_90 <- 1.09 * (4200/47)    # wtp is 1.09 per 47 vegetated acres: 4200 acres 90% of original 4700 acres
-johnson1_wtp_95 <- 1.09 * (4500/47)    # wtp is 1.09 per 47 vegetated acres: 4500 acres 95% of original 4700 acres
-
-#Johnson, Feurt and Holland (2015). Ecosystem serv and riparian land management in the Merriland, Branch Brook and Little River Watershed
-johnson2_wtp_85 <- 0.044 * (4000/47)    # wtp is 0.044 per 47 vegetated acres: 4000 acres 85% of original 4700 acres
-johnson2_wtp_87 <- 0.044 * (4100/47)    # wtp is 0.044 per 47 vegetated acres: 4100 acres 87% of original 4700 acres
-johnson2_wtp_95 <- 0.044 * (4500/47)    # wtp is 0.044 per 47 vegetated acres: 4500 acres 95% of original 4700 acres
 
 #Constructing data.frame
 canada_data <- data.frame(
@@ -237,25 +224,25 @@ canada_data <- data.frame(
 #Extracting 
 # Download Statistics Canada data from Cansim by table name
 # https://www150.statcan.gc.ca/t1/tbl1/en/cv.action?pid=1110019001
-cpi_sk <- get_cansim(1110019001) 
+cpi_canada <- get_cansim(1110019001) 
 
 #filters
-unique(cpi_sk$GEO) # "Quebec"  "Toronto, "New Brunswick"  "Manitoba" "Ontario" 
-unique(cpi_sk$`Income concept`)  #"Average after-tax income" 
-unique(cpi_sk$`Economic family type`) #"Economic families" 
+unique(cpi_canada$GEO) # "Quebec"  "Toronto, "New Brunswick"  "Manitoba" "Ontario" 
+unique(cpi_canada$`Income concept`)  #"Average after-tax income" 
+unique(cpi_canada$`Economic family type`) #"Economic families" 
 
-cpi_sk1 <- cpi_sk %>%
+cpi_canada1 <- cpi_canada%>%
   dplyr::filter(GEO == "Quebec"|GEO =="New Brunswick"| GEO =="Manitoba"|GEO =="Ontario" ,
-         `Income concept` == "Average after-tax income",
+         `Income concept` == "Median total income",  #I used this to be consistent with income variable from the US
          `Economic family type` == "Economic families",
          REF_DATE == 2017) %>%
   select(REF_DATE, GEO, VALUE) %>% 
   column_to_rownames("GEO")
 
-inc_NB <- cpi_sk1["New Brunswick", "VALUE"]
-inc_QE <- cpi_sk1["Quebec", "VALUE"]
-inc_ON <- cpi_sk1["Ontario", "VALUE"]
-inc_MB <- cpi_sk1["Manitoba", "VALUE"]
+inc_NB <- cpi_canada1["New Brunswick", "VALUE"]
+inc_QE <- cpi_canada1["Quebec", "VALUE"]
+inc_ON <- cpi_canada1["Ontario", "VALUE"]
+inc_MB <- cpi_canada1["Manitoba", "VALUE"]
 
 canada_data <- canada_data %>%
   mutate(
@@ -266,6 +253,8 @@ canada_data <- canada_data %>%
   )
 canada_data %>% View()
 
+#willingness to pay estimates from additional US studies
+#Johnson, Holland and Yao (2016). Individualized Geocoding in SP Questionnaires: Impl. for survey design and welfare est.
 johnson1_wtp_85 <- 1.09 * (4000/47)    # wtp is 1.09 per 47 vegetated acres: 4000 acres 85% of original 4700 acres
 johnson1_wtp_87 <- 1.09 * (4100/47)    # wtp is 1.09 per 47 vegetated acres: 4100 acres 87% of original 4700 acres
 johnson1_wtp_90 <- 1.09 * (4200/47)    # wtp is 1.09 per 47 vegetated acres: 4200 acres 90% of original 4700 acres
@@ -274,9 +263,16 @@ johnson1_wtp_95 <- 1.09 * (4500/47)    # wtp is 1.09 per 47 vegetated acres: 450
 #Johnson, Feurt and Holland (2015). Ecosystem serv and riparian land management in the Merriland, Branch Brook and Little River Watershed
 johnson2_wtp_85 <- 0.044 * (4000/47)    # wtp is 0.044 per 47 vegetated acres: 4000 acres 85% of original 4700 acres
 johnson2_wtp_87 <- 0.044 * (4100/47)    # wtp is 0.044 per 47 vegetated acres: 4100 acres 87% of original 4700 acres
-johnson2_wtp_95 <- 0.044 * (4500/47)
+johnson2_wtp_95 <- 0.044 * (4500/47)    # wtp is 0.044 per 47 vegetated acres: 4500 acres 95% of original 4700 acres
 
-# Additional two USA studies
+#median Income from Maine
+#https://www.deptofnumbers.com/income/maine/
+inc_ME = 58693 # 2017 median household income
+
+# 2017 us canada exchange rate: https://www.bankofcanada.ca/rates/exchange/annual-average-exchange-rates/
+excrate_2017 = 1.3
+
+# Constructing additional us data 
 add_us_data <- data.frame(
   authors = c("johnson1_wtp_85","johnson1_wtp_87", "johnson1_wtp_90", "johnson1_wtp_95",
               "johnson2_wtp_85","johnson2_wtp_87", "johnson2_wtp_95"),
@@ -383,11 +379,12 @@ add_us_data <- add_us_data %>%
                 |authors == "johnson2_wtp_95", 1, ce),
     #study province
     province = "Maine",
-    lninc = 0
+    lninc = log(inc_ME * excrate_2017)  #convert us income to can$
   )
 
 add_us_data %>% View()
-#selecting relevant columns
+
+#selecting relevant columns for model estimation
 canada_data <- canada_data %>%
   mutate(lnwtp = 0,
          us = 0) %>%
@@ -398,12 +395,14 @@ add_us_data <- add_us_data %>%
          us=1) %>%
   select(authors, studyid, lnwtp, wtp_original, lnyear, lninc, local, prov, reg, cult, forest, q0, q1, volunt, lumpsum, ce, nrev, median, us)
 
-us_data <- meta_data %>%
-  mutate(wtp_original = 0,
-         us = 1,
-         authors = "us") %>%
+us_data <- read_csv("data/us_klausdata.csv") %>%
+  mutate( us = 1,
+         authors = "us",
+         wtp_original = exp(lninc) * 1.3, # use exp to transform logincome and convert to C$ with 2017 us-can exc rate
+         lninc = log(wtp_original)) %>%  
   filter(canada == 0) %>%
-  select(authors, studyid, lnwtp, wtp_original, lnyear, lninc, local, prov, reg, cult, forest, q0, q1, volunt, lumpsum, ce, nrev, median)
+  select(authors, studyid, lnwtp, wtp_original, lnyear, lninc, local, prov, reg, cult, forest, q0, q1, volunt, lumpsum, ce, nrev, median, us)
+us_data %>% View()
 
 us_canada <- canada_data %>%
   add_row(add_us_data) %>%
@@ -451,7 +450,7 @@ exchrate <- exch_rate_us_to_can %>%
   summarize(av_monthly_excrate = mean(exchrate)) %>%
   column_to_rownames("Year") 
 
-exchrate_2018 <- exchrate["2018", "av_monthly_excrate"]
+exchrate_2018 <- exchrate["2017", "av_monthly_excrate"]
 
 transformed_wtp <- wtp_orginal %>%
 	mutate(rel_cpi = 0,
