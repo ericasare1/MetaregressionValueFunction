@@ -62,55 +62,21 @@ head(melted_cormat)
 ggplot(data = melted_cormat, aes(x=Var1, y=Var2, fill=value)) + 
   geom_tile()
 
+#lmtest::bptest(lm_restricted)  # Breusch-Pagan test
 #-------------------Model Estimation : Results of Exploratory Exercise looks good to me
-#A. OLS
-#1. With only the log of the change in baseline and post improvement wetland acres 
-lm_restricted <- lm(lnwtp ~ lnq_change, data= df)
-summary(lm_restricted)
 
-#b. Full OLS Model
-lm_full <- lm(lnwtp ~ lnyear  +
-			  	local + 
-			  	prov + reg + cult + lninc +
-			  	forest + 
-			  	volunt + lumpsum + ce + nrev + lnq_change + us, data= df)
-summary(lm_full)
+#Model 1: dep var is lnwtp and rel ind vars: lnqo and lnq_change
+Model_1 <- lmer(lnwtp ~ lnyear  + local + prov + reg + cult + lninc +forest + 
+					 volunt + lumpsum + ce + nrev + lnq0 + lnq_change + us +
+					   (1 |studyid), data  = df)
+summary(Model_1)
+ranova(Model_1) 
 
-#OLS Model Diagnostics
-#I. Graphical Approach To Check for  fit
-opar <- par(mfrow = c(2,2), oma = c(0, 0, 1.1, 0))
-plot(lm_restricted, las = 1)
-#II. Statistical testing: Test of Homoscedasticity 
-lmtest::bptest(lm_restricted)  # Breusch-Pagan test
+#Model 1: dep var is lnwtp2 and rel ind vars: lnqo
 
-#B. Mixed Model: Random Coefficient Model 
-#1. Restricted - Random intercept model
-mixed_restricted = lmer(lnwtp ~ lnq_change + (1 | studyid), data= df)
-summary(mixed_restricted)
-performance::icc(mixed_restricted) 
-
-#1. Full - Random intercept model (...)
-mixed_full <- lmer(lnwtp ~ lnyear  + local + prov + reg + cult + lninc +forest + 
-					 volunt + lumpsum + ce + nrev + lnq_change + us + (1 |studyid), data  = df)
-
-#2. Random intercept model (MRM1 in Moeltner et al. 2019)
-mixed_full_mrm1 <- lmer(lnwtp ~ lnyear  + local + prov + reg + cult + lninc +forest + 
-						volunt + lumpsum + ce + nrev + lnq0 + lnq_change + us + (1 |studyid), data  = df)
-
-#3. Random intercept model (MRM2 in Moeltner et al. 2019)...
-mixed_full_mrm2 <- lmer(lnwtp2 ~ lnyear  + local + prov + reg + cult + lninc +forest + 
-						volunt + lumpsum + ce + nrev + q01 + us + (1 |studyid), data  = df)
-
-#4. Random intercept model (Normalised MRM1)...
-mixed_full_mrm3 <- lmer(lnwtp2 ~ year_sc  + local + prov + reg + cult + income_sc +forest + 
-							volunt + lumpsum + ce + nrev + q_diff_sc + us + (1 |studyid), data  = df)
 
 #Model Diagnostics
 #checking if the random coefficient model is really significant
-ranova(mixed_full) 
-ranova(mixed_full_mrm1) 
-ranova(mixed_full_mrm2) 
-ranova(mixed_full_mrm3) 
 
 #Inter Class Correlation
 performance::icc(mixed_full) 
