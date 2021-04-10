@@ -74,6 +74,11 @@ ranova(Model_1)
 
 #Model 1: dep var is lnwtp2 and rel ind vars: lnqo
 
+Model_2 <- lmer(lnwtp2 ~ lnyear  + local + prov + reg + cult +forest + 
+                  volunt + lumpsum + ce + nrev + lnq0 + us +
+                  (1 |studyid), data  = df) #lninc dropped cos of multicollinearity
+summary(Model_2)
+ranova(Model_2) 
 
 #Model Diagnostics
 #checking if the random coefficient model is really significant
