@@ -386,6 +386,7 @@ add_us_data <- add_us_data %>%
     lninc = 0
   )
 
+add_us_data %>% View()
 #selecting relevant columns
 canada_data <- canada_data %>%
   mutate(lnwtp = 0,
