@@ -331,22 +331,22 @@ add_us_data <- add_us_data %>%
     forest = ifelse(authors == "johnson2_wtp_85"|authors == "johnson2_wtp_87"|
                       authors == "johnson2_wtp_95", 1, forest),
     # baseline acreage
-    q0 = ifelse(authors == "johnson1_wtp_85", 4200, 0),
-    q0 = ifelse(authors == "johnson1_wtp_87", 0, q0),
-    q0 = ifelse(authors == "johnson1_wtp_90", 0, q0),
-    q0 = ifelse(authors == "johnson1_wtp_95", 0, q0),
-    q0 = ifelse(authors == "johnson2_wtp_85", 0, q0),
-    q0 = ifelse(authors == "johnson2_wtp_87", 0, q0),
-    q0 = ifelse(authors == "johnson2_wtp_95", 0, q0),
+    q0 = ifelse(authors == "johnson1_wtp_85", 4000, 0),
+    q0 = ifelse(authors == "johnson1_wtp_87", 4100, q0),
+    q0 = ifelse(authors == "johnson1_wtp_90", 4200, q0),
+    q0 = ifelse(authors == "johnson1_wtp_95", 4500, q0),
+    q0 = ifelse(authors == "johnson2_wtp_85", 4000, q0),
+    q0 = ifelse(authors == "johnson2_wtp_87", 4100, q0),
+    q0 = ifelse(authors == "johnson2_wtp_95", 4500, q0),
   
     # policy acreage
-    q1 = ifelse(authors == "johnson1_wtp_85", 4200, 0),
-    q1 = ifelse(authors == "johnson1_wtp_87", 0, q1),
-    q1 = ifelse(authors == "johnson1_wtp_90", 0, q1),
-    q1 = ifelse(authors == "johnson1_wtp_95", 0, q1),
-    q1 = ifelse(authors == "johnson2_wtp_85", 0, q1),
-    q1 = ifelse(authors == "johnson2_wtp_87", 0, q1),
-    q1 = ifelse(authors == "johnson2_wtp_95", 0, q1),    
+    q1 = ifelse(authors == "johnson1_wtp_85", 4700, 0),
+    q1 = ifelse(authors == "johnson1_wtp_87", 4700, q1),
+    q1 = ifelse(authors == "johnson1_wtp_90", 4700, q1),
+    q1 = ifelse(authors == "johnson1_wtp_95", 4700, q1),
+    q1 = ifelse(authors == "johnson2_wtp_85", 4700, q1),
+    q1 = ifelse(authors == "johnson2_wtp_87", 4700, q1),
+    q1 = ifelse(authors == "johnson2_wtp_95", 4700, q1),    
     #volunt, binary = 1 if payment mechanism is voluntary
     volunt = 0,
     volunt = ifelse(authors == "johnson1_wtp_85"|authors == "johnson1_wtp_87"|
