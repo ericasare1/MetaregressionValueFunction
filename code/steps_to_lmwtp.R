@@ -383,13 +383,13 @@ canada_data <- canada_data %>%
   mutate(lnwtp = 0,
          us = 0) %>%
   select(authors, studyid, lnwtp, wtp_original, lnyear, lninc, local, 
-         prov, reg, cult, forest, q0, q1, volunt, lumpsum, ce, nrev, median, us)
+         prov, reg, cult, forest, q0, q1, volunt, lumpsum, ce, nrev, median, us, wlfresh)
 
 add_us_data <- add_us_data %>% 
   mutate(lnwtp = 0,
          us=1) %>%
   select(authors, studyid, lnwtp, wtp_original, lnyear, lninc, local,
-         prov, reg, cult, forest, q0, q1, volunt, lumpsum, ce, nrev, median, us)
+         prov, reg, cult, forest, q0, q1, volunt, lumpsum, ce, nrev, median, us, wlfresh)
 
 us_data <- read_csv("data/us_klausdata.csv") %>%
   mutate( us = 1,
@@ -398,7 +398,7 @@ us_data <- read_csv("data/us_klausdata.csv") %>%
          lninc = log(exp(lninc) * 1.3)) %>%  
   filter(canada == 0) %>%
   select(authors, studyid, lnwtp, wtp_original, lnyear, lninc, local, prov, 
-         reg, cult, forest, q0, q1, volunt, lumpsum, ce, nrev, median, us)
+         reg, cult, forest, q0, q1, volunt, lumpsum, ce, nrev, median, us, wlfresh)
 us_data %>% View()
 
 us_canada <- canada_data %>%
@@ -475,4 +475,4 @@ transformed_wtp <- us_canada %>%
 		   lnwtp = log(wtp_2017)) 
 
 transformed_wtp %>% View()
-write.csv(transformed_wtp, "data/Data_for_analysis_15_10.csv")  # Final US-Canada data for estimations.
+write.csv(transformed_wtp, "data/Data_for_analysis_11_4_21.csv")  # Final US-Canada data for estimations.

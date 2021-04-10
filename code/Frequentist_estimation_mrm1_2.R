@@ -21,12 +21,12 @@ normalized <- function(x) {
 # Creating and transforming variables
 df <- df %>%
   filter(wlfresh == 1) %>%
-  mutate(q0 = q0,
-         q1 = q1,
-         lnq0 = log(q0+1), #plus 1 to prevent taking the log of zero
-         lnq1 = log(q1+1),
-         q0_sc = normalized(q0),
-         q1_sc =  normalized(q1)) 
+  mutate(lnq0 = log(q0+1), #plus 1 to prevent taking the log of zero
+         lnq_change = log(q1-q0),
+         lnwtp2 = lnwtp - lnq_change
+  ) 
+
+         
 
 # Creating Change in baseline (q0) and post improvement wetland acres (q1) variables
 df <- df %>% 
