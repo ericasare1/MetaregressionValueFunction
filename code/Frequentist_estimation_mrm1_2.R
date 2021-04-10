@@ -25,40 +25,25 @@ df <- df %>%
          lnq_change = log(q1-q0),
          lnwtp2 = lnwtp - lnq_change
   ) 
-
-         
-
-# Creating Change in baseline (q0) and post improvement wetland acres (q1) variables
-df <- df %>% 
-  mutate(q01 = (q1 + q0)/2,  
-         q_diff = q1- q0,
-         q_diff_sc = normalized(q_diff),
-         year_sc = normalized(exp(lnyear)),
-         income_sc = normalized(exp(lninc)),
-         q_percent = ifelse(q0 == 0, 100, q1 / q0 -1), 
-         lnwtp2 = lnwtp - log(q1- q0),
-         us = ifelse(canada == 1, 0, 1), ifelse()
-         lnq_change = log(q1-q0),
-         canada_qo = q0 * canada,
-         canada_lnqo = lnq0 * canada)
 df %>% View()
-#----------------------------------------------Data Exploration------------------------
+df %>% filter(us == 1) %>% nrow() # number of observation of us studies
+df %>% filter(us == 0) %>% nrow() # number of observation of canadian studies
 
-# Variable Diagnostics
+#----------------------------------------------Data Exploration------------------------
 #A. checking the distribution of dependent variable
-qqp(df$lnwtp, "norm")
+qqp(df$lnwtp, "norm") # 'QQP' gives the Quantile-Quantile Plot to compare the empirical
+                      #q's and simulated q's from fitted beta distribution.
 
 #B. Plot of distribution of lnwtp within study clusters:  .
-df$id_study <- as.character(df$studyid)     # create a character variable to identify obser. per study     
+df$id_study <- as.character(df$studyid) # create a character variable to identify obser. per study     
 ggplot(df, aes(x= id_study, y = lnwtp, fill = as.character(us))) +
 	geom_boxplot() +
 	theme_bw(base_size = 14)
 
-
 #C. checking for outliers
 boxplot(df$lnwtp) 
 
-#a)....Checking for multicollinearity with Variance Inflation Factors
+#a)....Checking for multicollinearity with correlation map
 ols <- lm(lnwtp ~ lnyear  +
 		  	local + 
 		  	prov + reg + cult + lninc +
