@@ -10,38 +10,40 @@ p_load(sjPlot, tableone, stargazer, broom, tidyverse, lme4, car, MASS, WeMix, me
 
 # Import data
 #-----------------------------------------------
-df <- read_csv("data/Data_for_analysis_15_10.csv")
+df <- read_csv("data/Data_for_analysis_11_4_21.csv")
 str(df) #check the structure of variables
 
 #function to scale variables to be between 0 and 1
 normalized <- function(x) {
-	(x- min(x))/(max(x) - min(x))
+  (x- min(x))/(max(x) - min(x))
 }
 
-# Creating variables
+# Creating and transforming variables
 df <- df %>%
-	filter(wlfresh == 1) %>%
-	mutate(q0 = q0,
-		   q1 = q1,
-		   lnq0 = log(q0+1), #plus 1 to prevent taking the log of zero
-		   lnq1 = log(q1+1),
-		   q0_sc = normalized(q0),
-		   q1_sc =  normalized(q1)) 
+  filter(wlfresh == 1) %>%
+  mutate(q0 = q0,
+         q1 = q1,
+         lnq0 = log(q0+1), #plus 1 to prevent taking the log of zero
+         lnq1 = log(q1+1),
+         q0_sc = normalized(q0),
+         q1_sc =  normalized(q1)) 
 
 # Creating Change in baseline (q0) and post improvement wetland acres (q1) variables
 df <- df %>% 
-	mutate(q01 = (q1 + q0)/2,  
-		   q_diff = q1- q0,
-		   q_diff_sc = normalized(q_diff),
-		   year_sc = normalized(exp(lnyear)),
-		   income_sc = normalized(exp(lninc)),
-		   q_percent = ifelse(q0 == 0, 100, q1 / q0 -1), 
-		   lnwtp2 = lnwtp - log(q1- q0),
-		   us = ifelse(canada == 1, 0, 1), ifelse()
-		   lnq_change = log(q1-q0),
-		   canada_qo = q0 * canada,
-		   canada_lnqo = lnq0 * canada)
+  mutate(q01 = (q1 + q0)/2,  
+         q_diff = q1- q0,
+         q_diff_sc = normalized(q_diff),
+         year_sc = normalized(exp(lnyear)),
+         income_sc = normalized(exp(lninc)),
+         q_percent = ifelse(q0 == 0, 100, q1 / q0 -1), 
+         lnwtp2 = lnwtp - log(q1- q0),
+         us = ifelse(canada == 1, 0, 1), ifelse()
+         lnq_change = log(q1-q0),
+         canada_qo = q0 * canada,
+         canada_lnqo = lnq0 * canada)
 df %>% View()
+#----------------------------------------------Data Exploration------------------------
+
 # Variable Diagnostics
 #A. checking the distribution of dependent variable
 qqp(df$lnwtp, "norm")
