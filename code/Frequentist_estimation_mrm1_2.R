@@ -170,6 +170,7 @@ stargazer(Model_1, Model_1_us, Model_2, Model_2_us,
           single.row = TRUE)
 
 #............Transfer Error
+set.seed(1200)
 df_can <- df %>% filter(us==0)
 
 #US-Canada model: Model 1 because it fit the data better than model 2
@@ -189,7 +190,51 @@ transfer_error_fulldata <- df_prediction_alldata %>%
 transfer_error_fulldata %>% View()
 mean(transfer_error_fulldata$TE_MA)
 mean(transfer_error_fulldata$TE_UnitTransfer)
+write_csv(transfer_error_fulldata, "data/transfer_error_alldata.csv")
 
+#US model when prediction data is us only data: Model 1 because it fit the data better than model 2
+df_prediction_us <- data.frame((predictInterval(merMod = Model_2_us, newdata = df_us,
+                                                     level = 0.95, n.sims = 1000,
+                                                     stat = "median", type="linear.prediction",
+                                                     include.resid.var = TRUE))) %>%
+  mutate(fit = fit + df_us$lnq_change) #: use this only for model 2 cos dep var is lnwtp - lnq_change
+
+min(df_prediction_us$fit) # to check if there are negative predictions: must not be true for log-log
+#There is no negative prediction so good to go
+
+transfer_error_us <- df_prediction_us %>%
+  tibble(wtp = df_us$wtp_2017) %>%
+  mutate(wtp_ypred = exp(fit) - 1,
+         TE_MA = as.numeric((abs(wtp - wtp_ypred)/wtp)*100),
+         TE_UnitTransfer = as.numeric((abs(wtp - mean(wtp))/wtp)*100))
+
+transfer_error_us %>% View()
+mean(transfer_error_us$TE_MA)
+mean(transfer_error_us$TE_UnitTransfer)
+
+write_csv(transfer_error_us, "data/transfer_error_us.csv")
+
+#US model when prediction data is canada only data: Model 1 because it fit the data better than model 2
+df_prediction_us_on_can <- data.frame((predictInterval(merMod = Model_2_us, newdata = df_can,
+                                                level = 0.95, n.sims = 1000,
+                                                stat = "median", type="linear.prediction",
+                                                include.resid.var = TRUE))) %>%
+  mutate(fit = fit + df_can$lnq_change) #: use this only for model 2 cos dep var is lnwtp - lnq_change
+
+min(df_prediction_us_on_can$fit) # to check if there are negative predictions: must not be true for log-log
+#There is no negative prediction so good to go
+
+transfer_error_us_on_can <- df_prediction_us_on_can %>%
+  tibble(wtp = df_can$wtp_2017) %>%
+  mutate(wtp_ypred = exp(fit) - 1,
+         TE_MA = as.numeric((abs(wtp - wtp_ypred)/wtp)*100),
+         TE_UnitTransfer = as.numeric((abs(wtp - mean(wtp))/wtp)*100))
+
+transfer_error_us_on_can %>% View()
+mean(transfer_error_us_on_can$TE_MA)
+mean(transfer_error_us_on_can$TE_UnitTransfer)
+
+write_csv(transfer_error_us_on_can, "data/transfer_error_us_on_can.csv")
 ##1. Mixed model with robust standard errors
 
 #bayesian
