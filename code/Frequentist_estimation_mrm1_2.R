@@ -210,7 +210,8 @@ transfer_error_us <- df_prediction_us %>%
          TE_MA = as.numeric((abs(wtp - wtp_ypred)/wtp)*100),
          TE_UnitTransfer = as.numeric((abs(wtp - mean(wtp))/wtp)*100),
          lowerC1_wtp = exp(lwr) - 1,
-         upperC1_wtp = exp(upr) - 1)
+         upperC1_wtp = exp(upr) - 1,
+         qchange = df_us$q1-df_us$q0)
 
 transfer_error_us %>% View()
 mean(transfer_error_us$TE_MA)
@@ -234,14 +235,50 @@ transfer_error_us_on_can <- df_prediction_us_on_can %>%
          TE_MA = as.numeric((abs(wtp - wtp_ypred)/wtp)*100),
          TE_UnitTransfer = as.numeric((abs(wtp - mean(wtp))/wtp)*100),
          lowerC1_wtp = exp(lwr) - 1,
-         upperC1_wtp = exp(upr) - 1)
+         upperC1_wtp = exp(upr) - 1,
+         qchange = df_can$q1-df_can$q0)
 
 transfer_error_us_on_can %>% View()
 mean(transfer_error_us_on_can$TE_MA)
 mean(transfer_error_us_on_can$TE_UnitTransfer)
 
 write_csv(transfer_error_us_on_can, "data/transfer_error_us_on_can.csv")
-##1. Mixed model with robust standard errors
+
+## -------------------Adding Up Test ------------
+df
+adding_up_testdata <- data.frame(
+  scenario = c("F_SP_1_2","F_SP_2_3", "F_SP_1_3",
+               "F_P_1_2","F_P_2_3", "F_P_1_3",
+               "NF_SP_1_2","NF_SP_2_3", "NF_SP_1_3",
+               "NF_P_1_2","NF_P_2_3", "NF_P_1_3"),
+  forest = c(1,1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0),
+  local = c(1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0),
+  q0 = c(10000, 10030, 10000,10000, 10030, 10000, 10000, 10030, 10000, 10000, 10030, 10000),
+  q1 = c(10030, 10050, 10050, 10030, 10050, 10050, 10030, 10050, 10050, 10030, 10050, 10050),
+  list(studyid = sample(101: 134, 12, replace = F)))
+
+adding_up_testdata <- adding_up_testdata %>%
+  mutate(lumpsum = 0,
+         volunt = 1,
+         nrev = 1,
+         lninc = mean(df$lninc),
+         prov = 1,
+         reg = 1,
+         cult = 0,
+         ce = 1,
+         lnyear = log(2018-1991) + 1
+         )
+adding_up_testdata %>% View()
+
+
+
+
+
+
+
+
+
+
 
 #bayesian
 priors<-c(set_prior("normal(0,10)", class="b"),#prior for the beta's
