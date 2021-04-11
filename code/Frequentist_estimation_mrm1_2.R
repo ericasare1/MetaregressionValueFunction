@@ -73,7 +73,6 @@ summary(Model_1)
 ranova(Model_1) 
 
 #Model 1: dep var is lnwtp2 and rel ind vars: lnqo
-
 Model_2 <- lmer(lnwtp2 ~ lnyear  + local + prov + reg + cult +forest + 
                   volunt + lumpsum + ce + nrev + lnq0 + us +
                   (1 |studyid), data  = df) #lninc dropped cos of multicollinearity
@@ -84,60 +83,67 @@ ranova(Model_2)
 #checking if the random coefficient model is really significant
 
 #Inter Class Correlation
-performance::icc(mixed_full) 
-performance::icc(mixed_full_mrm1) 
-performance::icc(mixed_full_mrm2) 
-performance::icc(mixed_full_mrm3) 
+performance::icc(Model_1) 
+performance::icc(Model_2) 
 
 #Checking for Multicollinearity
-performance::check_collinearity(mixed_full)
-performance::check_collinearity(mixed_full_mrm1)
-performance::check_collinearity(mixed_full_mrm2)
-performance::check_collinearity(mixed_full_mrm3)
-
-#show estimated results
-summary(mixed_full)
-summary(mixed_full_mrm1)
-summary(mixed_full_mrm2)
-summary(mixed_full_mrm3)
+performance::check_collinearity(Model_1)
+performance::check_collinearity(Model_2)
 
 #c. checking for heteroscedasticity
 #c1. Graphical way
-plot(fitted(mixed_full), resid(mixed_full, type = "pearson"))# this will create the plot
+plot(fitted((Model_1)), resid((Model_1), type = "pearson"))# this will create the plot
 abline(0,0, col="red")
+
+plot(fitted((Model_2)), resid((Model_2), type = "pearson"))# this will create the plot
+abline(0,0, col="blue")
+
 #c2. Statistical test
-performance::check_heteroscedasticity(mixed_full)
-performance::check_heteroscedasticity(mixed_full_mrm1)
-performance::check_heteroscedasticity(mixed_full_mrm2)
+performance::check_heteroscedasticity(Model_1)
+performance::check_heteroscedasticity(Model_2)
+
 #Normality of residuals
-qqnorm(resid(mixed_full)) 
-qqline(resid(mixed_full), col = "red") # add a perfect fit line
+qqnorm(resid(Model_1)) 
+qqline(resid(Model_1), col = "red") # add a perfect fit line
 
 #Model Performance
 #a. Root mean squared error
-performance::rmse(mixed_full)
-performance::rmse(mixed_full_mrm1) #lowest
-performance::rmse(mixed_full_mrm2)
-performance::rmse(mixed_full_mrm3)
+performance::rmse(Model_1)
+performance::rmse(Model_2) #lowest
 
 #b. R square
-performance::r2(mixed_full)
-performance::r2(mixed_full_mrm1) #better
-performance::r2(mixed_full_mrm2)
+performance::r2(Model_1)
+performance::r2(Model_2) #better
 
-# MRM2 fits the data better and also the coefficient on lnq_change has the right positive sign
-#creating data for US only studies
-df_us <- df %>% filter(us ==1) %>%
-	mutate(lnq0_sc = log(q0_sc+1))
 
-#. Random intercept model (MRM1 in Moeltner et al. 2019)
-mixed_full_us <- lmer(lnwtp ~ lnyear  + local + prov + reg + cult  + forest + 
-							volunt + lumpsum + ce + nrev + lnq0 + lnq_change + (1 |studyid), data  = df_us)
-ranova(mixed_full) 
-summary(mixed_full_us)
-performance::check_collinearity(mixed_full_us)
-performance::check_heteroscedasticity(mixed_full_us)
-performance::rmse(mixed_full_us)
+#----------------US study only models--------------------
+df_us <- df %>% filter(us ==1)
+
+#. Model 1
+Model_1_us <- lmer(lnwtp ~ lnyear  + local + prov + reg + cult  + forest + lninc +
+							volunt + lumpsum + ce + lnq0 + lnq_change + (1 |studyid),
+							data  = df_us)
+
+ranova(Model_1_us) 
+summary(Model_1_us)
+performance::check_collinearity(Model_1_us)
+performance::check_heteroscedasticity(Model_1_us)
+performance::rmse(Model_1_us)
+performance::r2(Model_1_us)
+
+#. Model 2
+Model_2_us <- lmer(lnwtp2 ~ lnyear  + local + prov + reg + cult  + forest + lninc +
+                     volunt + lumpsum + ce + nrev + lnq0 + (1 |studyid),
+                   data  = df_us)
+
+ranova(Model_2_us) # mixed model not appropriate for the data: We model ordinary least squares
+
+summary(Model_2_us)
+performance::check_collinearity(Model_2_us)
+performance::check_heteroscedasticity(Model_2_us)
+performance::rmse(Model_2_us)
+performance::r2(Model_2_us)
+
 
 
 PI <- predictInterval(merMod = mixed_full_mrm1, newdata = df,
