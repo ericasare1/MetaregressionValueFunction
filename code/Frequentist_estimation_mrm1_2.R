@@ -72,7 +72,7 @@ Model_1 <- lmer(lnwtp ~ lnyear  + local + prov + reg + cult + lninc +forest +
 summary(Model_1)
 ranova(Model_1) 
 
-#Model 1: dep var is lnwtp2 and rel ind vars: lnqo
+#Model 2: dep var is lnwtp2 and rel ind vars: lnqo
 Model_2 <- lmer(lnwtp2 ~ lnyear  + local + prov + reg + cult +forest + 
                   volunt + lumpsum + ce + nrev + lnq0 + us +
                   (1 |studyid), data  = df) #lninc dropped cos of multicollinearity
@@ -115,7 +115,15 @@ performance::rmse(Model_2) #lowest
 performance::r2(Model_1)
 performance::r2(Model_2) #better
 
+#US-Canada model summary results
+class(Model_1) <- "lmerMod"
+class(Model_2) <- "lmerMod"
 
+stargazer(Model_1, Model_2,
+          type = "html",
+          out="Us-Canada_models.doc",
+          style = "qje",
+          single.row = TRUE)
 #----------------US study only models--------------------
 df_us <- df %>% filter(us ==1)
 
@@ -144,12 +152,44 @@ performance::check_heteroscedasticity(Model_2_us)
 performance::rmse(Model_2_us)
 performance::r2(Model_2_us)
 
+#US only model summary results
+class(Model_1_us) <- "lmerMod"
+class(Model_2_us) <- "lmerMod"
 
+stargazer(Model_1_us, Model_2_us,
+          type = "html",
+          out="Us_models.doc",
+          style = "qje",
+          single.row = TRUE)
 
-PI <- predictInterval(merMod = mixed_full_mrm1, newdata = df,
-					  level = 0.95, n.sims = 1000,
-					  stat = "median", type="linear.prediction",
-					  include.resid.var = TRUE)
+# all models
+stargazer(Model_1, Model_1_us, Model_2, Model_2_us,
+          type = "html",
+          out="all_models.doc",
+          style = "qje",
+          single.row = TRUE)
+
+#............Transfer Error
+df_can <- df %>% filter(us==0)
+
+#US-Canada model: Model 1 because it fit the data better than model 2
+df_prediction_alldata <- data.frame((predictInterval(merMod = Model_1, newdata = df_can,
+                       level = 0.95, n.sims = 1000,
+                       stat = "median", type="linear.prediction",
+                       include.resid.var = TRUE))) #+ df$lnq_change : use this only for model 2
+min(df_prediction_alldata$fit) # to check if there are negative predictions: must not be true for log-log
+#There is no negative prediction so good to go
+
+transfer_error_fulldata <- df_prediction_alldata %>%
+  tibble(wtp = df_can$wtp_2017) %>%
+  mutate(wtp_ypred = exp(fit) - 1,
+         TE_MA = as.numeric((abs(wtp - wtp_ypred)/wtp)*100),
+         TE_UnitTransfer = as.numeric((abs(wtp - mean(wtp))/wtp)*100))
+
+transfer_error_fulldata %>% View()
+mean(transfer_error_fulldata$TE_MA)
+mean(transfer_error_fulldata$TE_UnitTransfer)
+
 ##1. Mixed model with robust standard errors
 
 #bayesian
@@ -207,19 +247,6 @@ summary(bayesian_mixed_full_us)
 #Model performance
 performance::performance_rmse(bayesian_mixed_full) #compyes 
 performance::performance_rmse(bayesian_mixed_full_us) #compyes 
-
-#............Transfer Error
-df_prediction <-  data.frame(predict(bayesian_mixed_full, df, allow_new_levels =TRUE)) 
-
-transfer_error_fulldata <- df_prediction %>%
-	tibble(lnwtp = df$lnwtp) %>%
-	rename(lnwtp_pred = Estimate) %>%
-	mutate(wtp_y = exp(lnwtp) - 1,
-		   wtp_ypred = exp(lnwtp_pred) - 1,
-		   TE_MA = as.numeric((abs(wtp_y - wtp_ypred)/wtp_y)*100),
-		   TE_BT = as.numeric((abs(wtp_y - mean(wtp_y))/wtp_y)*100))
-mean(transfer_error_fulldata$TE_MA)
-mean(transfer_error_fulldata$TE_BT)
 
 ## ..............Preictions using the PHJV data 
 #1. Prepare data the data as we model data
