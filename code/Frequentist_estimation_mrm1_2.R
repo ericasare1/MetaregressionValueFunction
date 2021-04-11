@@ -185,7 +185,9 @@ transfer_error_fulldata <- df_prediction_alldata %>%
   tibble(wtp = df_can$wtp_2017) %>%
   mutate(wtp_ypred = exp(fit) - 1,
          TE_MA = as.numeric((abs(wtp - wtp_ypred)/wtp)*100),
-         TE_UnitTransfer = as.numeric((abs(wtp - mean(wtp))/wtp)*100))
+         TE_UnitTransfer = as.numeric((abs(wtp - mean(wtp))/wtp)*100),
+         lowerC1_wtp = exp(lwr) - 1,
+         upperC1_wtp = exp(upr) - 1)
 
 transfer_error_fulldata %>% View()
 mean(transfer_error_fulldata$TE_MA)
@@ -206,7 +208,9 @@ transfer_error_us <- df_prediction_us %>%
   tibble(wtp = df_us$wtp_2017) %>%
   mutate(wtp_ypred = exp(fit) - 1,
          TE_MA = as.numeric((abs(wtp - wtp_ypred)/wtp)*100),
-         TE_UnitTransfer = as.numeric((abs(wtp - mean(wtp))/wtp)*100))
+         TE_UnitTransfer = as.numeric((abs(wtp - mean(wtp))/wtp)*100),
+         lowerC1_wtp = exp(lwr) - 1,
+         upperC1_wtp = exp(upr) - 1)
 
 transfer_error_us %>% View()
 mean(transfer_error_us$TE_MA)
@@ -228,7 +232,9 @@ transfer_error_us_on_can <- df_prediction_us_on_can %>%
   tibble(wtp = df_can$wtp_2017) %>%
   mutate(wtp_ypred = exp(fit) - 1,
          TE_MA = as.numeric((abs(wtp - wtp_ypred)/wtp)*100),
-         TE_UnitTransfer = as.numeric((abs(wtp - mean(wtp))/wtp)*100))
+         TE_UnitTransfer = as.numeric((abs(wtp - mean(wtp))/wtp)*100),
+         lowerC1_wtp = exp(lwr) - 1,
+         upperC1_wtp = exp(upr) - 1)
 
 transfer_error_us_on_can %>% View()
 mean(transfer_error_us_on_can$TE_MA)

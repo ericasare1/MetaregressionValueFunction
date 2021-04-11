@@ -264,7 +264,7 @@ johnson2_wtp_95 <- 0.044 * (4500/47)    # wtp is 0.044 per 47 vegetated acres: 4
 inc_ME = 58693 # 2017 median household income
 
 # 2017 us canada exchange rate: https://www.bankofcanada.ca/rates/exchange/annual-average-exchange-rates/
-excrate_2017 = 1.3
+excrate_2017 = 1.3 
 
 # Constructing additional us data 
 add_us_data <- data.frame(
