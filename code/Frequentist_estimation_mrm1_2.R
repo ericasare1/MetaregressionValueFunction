@@ -149,7 +149,7 @@ ranova(Model_2_us) # mixed model not appropriate for the data: We model ordinary
 summary(Model_2_us)
 performance::check_collinearity(Model_2_us)
 performance::check_heteroscedasticity(Model_2_us)
-performance::rmse(Model_2_us)
+performance::icc(Model_1_us)
 performance::r2(Model_2_us)
 
 #US only model summary results
