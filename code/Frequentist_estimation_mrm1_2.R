@@ -173,17 +173,15 @@ stargazer(Model_1, Model_1_us, Model_2, Model_2_us,
 set.seed(1200)
 df_can <- df %>% filter(us==0)
 
-#US-Canada model: Model 1 because it fit the data better than model 2
-df_prediction_alldata <- data.frame((predictInterval(merMod = Model_2, newdata = df_can,
+#US-Canada model: Model 1 
+df_prediction_alldata_m1 <- data.frame((predictInterval(merMod = Model_1, newdata = df_can,
                        level = 0.95, n.sims = 1000,
                        stat = "median", type="linear.prediction",
-                       include.resid.var = TRUE))) %>%
-                       mutate(
-                         fit = fit + df_can$lnq_change) #+ df$lnq_change : use this only for model 2
+                       include.resid.var = TRUE))) #+ df$lnq_change : use this only for model 2
 min(df_prediction_alldata$fit) # to check if there are negative predictions: must not be true for log-log
 #There is no negative prediction so good to go
 
-transfer_error_fulldata <- df_prediction_alldata %>%
+transfer_error_fulldata_m1 <- df_prediction_alldata_m1 %>%
   tibble(wtp = df_can$wtp_2017) %>%
   mutate(wtp_ypred = exp(fit) - 1,
          TE_MA = as.numeric((abs(wtp - wtp_ypred)/wtp)*100),
@@ -192,9 +190,33 @@ transfer_error_fulldata <- df_prediction_alldata %>%
          upperC1_wtp = exp(upr) - 1)
 
 transfer_error_fulldata %>% View()
-mean(transfer_error_fulldata$TE_MA)
-mean(transfer_error_fulldata$TE_UnitTransfer)
-write_csv(transfer_error_fulldata, "data/transfer_error_alldata.csv")
+mean(transfer_error_fulldata_m1$TE_MA)
+mean(transfer_error_fulldata_m1$TE_UnitTransfer)
+write_csv(transfer_error_fulldata_m1, "data/transfer_error_alldata_m1.csv")
+
+#US-Canada model: Model 2 
+df_prediction_alldata_m2 <- data.frame((predictInterval(merMod = Model_2, newdata = df_can,
+                                                     level = 0.95, n.sims = 1000,
+                                                     stat = "median", type="linear.prediction",
+                                                     include.resid.var = TRUE))) %>%
+  mutate(
+    fit = fit + df_can$lnq_change) #+ df$lnq_change : use this only for model 2
+min(df_prediction_alldata$fit) # to check if there are negative predictions: must not be true for log-log
+#There is no negative prediction so good to go
+
+transfer_error_fulldata_m2 <- df_prediction_alldata_m2 %>%
+  tibble(wtp = df_can$wtp_2017) %>%
+  mutate(wtp_ypred = exp(fit) - 1,
+         TE_MA = as.numeric((abs(wtp - wtp_ypred)/wtp)*100),
+         TE_UnitTransfer = as.numeric((abs(wtp - mean(wtp))/wtp)*100),
+         lowerC1_wtp = exp(lwr) - 1,
+         upperC1_wtp = exp(upr) - 1)
+
+transfer_error_fulldata %>% View()
+mean(transfer_error_fulldata_m2$TE_MA)
+mean(transfer_error_fulldata_m2$TE_UnitTransfer)
+write_csv(transfer_error_fulldata_m2, "data/transfer_error_alldata_m2.csv")
+
 
 #US model when prediction data is us only data: Model 1 because it fit the data better than model 2
 df_prediction_us <- data.frame((predictInterval(merMod = Model_2_us, newdata = df_us,
@@ -281,7 +303,7 @@ adding_up_pred <- data.frame((predictInterval(merMod = Model_2_us, newdata = add
                                                 include.resid.var = T))) %>%
   mutate(fit = fit + adding_up_testdata$lnq_change,
          wtp = exp(fit)) 
-write_csv(adding_up_pred, "data/addingup_model2.csv")
+write_csv(adding_up_pred, "data/addingup_model2_us.csv")
 #Adding up: Model 2
 adding_up_pred_model2 <- data.frame((predictInterval(merMod = Model_2, newdata = adding_up_testdata,
                                               level = 0.95, n.sims = 1000,
@@ -299,17 +321,12 @@ adding_up_pred_model1 <- data.frame((predictInterval(merMod = Model_1, newdata =
                                                      level = 0.95, n.sims = 1000,
                                                      stat = "median", type="linear.prediction",
                                                      include.resid.var = T))) %>%
-  mutate(fit = fit + adding_up_testdata$lnq_change,
+  mutate(
          wtp = exp(fit)) 
 
 adding_up_pred_model1 %>% View()
 
 write_csv(adding_up_pred_model1, "data/addingup_model1.csv")
-
-
-
-
-
 
 #bayesian
 priors<-c(set_prior("normal(0,10)", class="b"),#prior for the beta's
