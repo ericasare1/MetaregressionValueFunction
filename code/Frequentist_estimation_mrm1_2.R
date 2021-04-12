@@ -174,10 +174,12 @@ set.seed(1200)
 df_can <- df %>% filter(us==0)
 
 #US-Canada model: Model 1 because it fit the data better than model 2
-df_prediction_alldata <- data.frame((predictInterval(merMod = Model_1, newdata = df_can,
+df_prediction_alldata <- data.frame((predictInterval(merMod = Model_2, newdata = df_can,
                        level = 0.95, n.sims = 1000,
                        stat = "median", type="linear.prediction",
-                       include.resid.var = TRUE))) #+ df$lnq_change : use this only for model 2
+                       include.resid.var = TRUE))) %>%
+                       mutate(
+                         fit = fit + df_can$lnq_change) #+ df$lnq_change : use this only for model 2
 min(df_prediction_alldata$fit) # to check if there are negative predictions: must not be true for log-log
 #There is no negative prediction so good to go
 
@@ -255,7 +257,8 @@ adding_up_testdata <- data.frame(
   local = c(1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0),
   q0 = c(10000, 10030, 10000,10000, 10030, 10000, 10000, 10030, 10000, 10000, 10030, 10000),
   q1 = c(10030, 10050, 10050, 10030, 10050, 10050, 10030, 10050, 10050, 10030, 10050, 10050),
-  list(studyid = sample(101: 134, 12, replace = F)))
+  list(studyid = sample(132:120, 12, replace = F)),
+  us = 0)
 
 adding_up_testdata <- adding_up_testdata %>%
   mutate(lumpsum = 0,
@@ -266,13 +269,30 @@ adding_up_testdata <- adding_up_testdata %>%
          reg = 1,
          cult = 0,
          ce = 1,
-         lnyear = log(2018-1991) + 1
+         lnyear = log(2018-1991) + 1,
+         lnq0 = log(q0),
+         lnq_change = log(q1- q0)
          )
 adding_up_testdata %>% View()
+#ading add Model 2 for the US model
+adding_up_pred <- data.frame((predictInterval(merMod = Model_2_us, newdata = adding_up_testdata,
+                                                level = 0.95, n.sims = 1000,
+                                                stat = "median", type="linear.prediction",
+                                                include.resid.var = T))) %>%
+  mutate(fit = fit + adding_up_testdata$lnq_change,
+         wtp = exp(fit)) 
+write_csv(adding_up_pred, "data/addingup_model2.csv")
+#Adding up: Model 1
+adding_up_pred_model2 <- data.frame((predictInterval(merMod = Model_2, newdata = adding_up_testdata,
+                                              level = 0.95, n.sims = 1000,
+                                              stat = "median", type="linear.prediction",
+                                              include.resid.var = T))) %>%
+  mutate(fit = fit + adding_up_testdata$lnq_change,
+         wtp = exp(fit)) 
 
+adding_up_pred_model2 %>% View()
 
-
-
+write_csv(adding_up_pred, "data/addingup_model2.csv")
 
 
 
