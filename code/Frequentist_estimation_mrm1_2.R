@@ -282,7 +282,7 @@ adding_up_pred <- data.frame((predictInterval(merMod = Model_2_us, newdata = add
   mutate(fit = fit + adding_up_testdata$lnq_change,
          wtp = exp(fit)) 
 write_csv(adding_up_pred, "data/addingup_model2.csv")
-#Adding up: Model 1
+#Adding up: Model 2
 adding_up_pred_model2 <- data.frame((predictInterval(merMod = Model_2, newdata = adding_up_testdata,
                                               level = 0.95, n.sims = 1000,
                                               stat = "median", type="linear.prediction",
@@ -292,8 +292,19 @@ adding_up_pred_model2 <- data.frame((predictInterval(merMod = Model_2, newdata =
 
 adding_up_pred_model2 %>% View()
 
-write_csv(adding_up_pred, "data/addingup_model2.csv")
+write_csv(adding_up_pred_model2, "data/addingup_model2.csv")
 
+#Adding up: Model 1
+adding_up_pred_model1 <- data.frame((predictInterval(merMod = Model_1, newdata = adding_up_testdata,
+                                                     level = 0.95, n.sims = 1000,
+                                                     stat = "median", type="linear.prediction",
+                                                     include.resid.var = T))) %>%
+  mutate(fit = fit + adding_up_testdata$lnq_change,
+         wtp = exp(fit)) 
+
+adding_up_pred_model1 %>% View()
+
+write_csv(adding_up_pred_model1, "data/addingup_model1.csv")
 
 
 
