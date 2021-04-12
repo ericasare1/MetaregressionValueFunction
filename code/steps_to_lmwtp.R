@@ -230,7 +230,7 @@ inc_canada1 <- inc_canada%>%
          `Income concept` == "Median total income",  #I used this to be consistent with income variable from the US
          `Economic family type` == "Economic families",
          REF_DATE == 2017) %>%
-  select(REF_DATE, GEO, VALUE) %>% 
+  dplyr::select(REF_DATE, GEO, VALUE) %>% 
   column_to_rownames("GEO")
 
 inc_NB <- cpi_canada1["New Brunswick", "VALUE"]
@@ -382,13 +382,13 @@ add_us_data %>% View()
 canada_data <- canada_data %>%
   mutate(lnwtp = 0,
          us = 0) %>%
-  select(authors, studyid, lnwtp, wtp_original, lnyear, lninc, local, 
+  dplyr::select(authors, studyid, lnwtp, wtp_original, lnyear, lninc, local, 
          prov, reg, cult, forest, q0, q1, volunt, lumpsum, ce, nrev, median, us, wlfresh)
 
 add_us_data <- add_us_data %>% 
   mutate(lnwtp = 0,
          us=1) %>%
-  select(authors, studyid, lnwtp, wtp_original, lnyear, lninc, local,
+  dplyr::select(authors, studyid, lnwtp, wtp_original, lnyear, lninc, local,
          prov, reg, cult, forest, q0, q1, volunt, lumpsum, ce, nrev, median, us, wlfresh)
 
 us_data <- read_csv("data/us_klausdata.csv") %>%
@@ -397,7 +397,7 @@ us_data <- read_csv("data/us_klausdata.csv") %>%
          wtp_original = exp(lnwtp) * 1.3, # use exp to transform lnwtp and convert to C$ with 2017 us-can exc rate
          lninc = log(exp(lninc) * 1.3)) %>%  
   filter(canada == 0) %>%
-  select(authors, studyid, lnwtp, wtp_original, lnyear, lninc, local, prov, 
+  dplyr::select(authors, studyid, lnwtp, wtp_original, lnyear, lninc, local, prov, 
          reg, cult, forest, q0, q1, volunt, lumpsum, ce, nrev, median, us, wlfresh)
 us_data %>% View()
 
@@ -412,7 +412,7 @@ us_canada %>% View()
 cpi_canada <- get_cansim(1810000401) %>%
   filter(`Products and product groups` == "All-items",
          GEO == "Canada") %>%
-  select(REF_DATE, VALUE) %>%
+  dplyr::select(REF_DATE, VALUE) %>%
   separate(REF_DATE, into = c('year', 'month'),  remove = F) %>%
   rename(cpi = VALUE) %>% 
   group_by(year) %>%
