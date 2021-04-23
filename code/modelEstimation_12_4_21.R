@@ -361,15 +361,19 @@ for(i in 1:10){
   test=temp[fold$subsets[fold$which == i], ]
   mod_1 = lmer(lnwtp ~ lnyear  + local + prov + reg + cult + lninc +forest + 
                  volunt + lumpsum + ce + nrev + lnq0 + lnq_change + us +
-                 (1 |studyid), data  = df)
-  newpred=predict(mod_1,newdata=test)
+                 (1 |studyid), data  = train)
+  newpred = tibble((predictInterval(merMod = mod_1, newdata = test,
+                             level = 0.95, n.sims = 1000,
+                             stat = "median", type="linear.prediction",
+                             include.resid.var = T)))
+  #newpred=predict(mod_1, newdata=test, allow.new.levels = T)
   true=test$lnwtp
-  error=(true-newpred)
+  error=(true-newpred$fit)
   rmse=sqrt(mean(error^2))
-  mse=mean((newpred-true)^2)
-  R2=1-(sum((true-newpred)^2)/sum((true-mean(true))^2))
+  mse=mean((newpred$fit-true)^2)
+  R2=1-(sum((true-newpred$fit)^2)/sum((true-mean(true))^2))
   mae=mean(abs(error))
-  temp[fold$subsets[fold$which == i], ]$holdoutpred <- newpred
+  temp[fold$subsets[fold$which == i], ]$holdoutpred <- newpred$fit
   temp[fold$subsets[fold$which == i], ]$RMSE=rmse
   temp[fold$subsets[fold$which == i], ]$MSE=mse
   temp[fold$subsets[fold$which == i], ]$MAE=mae
@@ -379,6 +383,65 @@ for(i in 1:10){
   temp[fold$subsets[fold$which == i], ]$Fold=i
 }
 temp
+
+temp %>% gather(.,MSE:BIC,key ="Metric",value = "Value") %>% 
+  ggplot(aes(x=Metric,y=Value,fill=Metric)) + 
+  geom_boxplot() +
+  coord_flip() +
+  facet_wrap(~Metric,ncol=1,scales="free")+
+  theme_bw()
+
+temp %>% dplyr::select(RMSE, MSE, MAE, R2, AIC, BIC) %>% map_dbl(median,na.rm=T)
+
+# mean value 
+temp2 <- df %>% 
+  mutate(Fold=rep(0,nrow(df)),
+         holdoutpred=rep(0,nrow(df)),
+         MSE=rep(0,nrow(.)),
+         RMSE=rep(0,nrow(.)),
+         MAE=rep(0,nrow(.)),
+         R2=rep(0,nrow(.)),
+         AIC=rep(0,nrow(.)),
+         BIC=rep(0,nrow(.)))
+
+for(i in 1:10){
+  train=temp2[fold$subsets[fold$which != i], ]
+  test=temp2[fold$subsets[fold$which == i], ]
+  mod_11 = lmer(lnwtp ~ lnyear  + local + prov + reg + cult + lninc +forest + 
+                 volunt + lumpsum + ce + nrev + lnq0 + lnq_change + us +
+                 (1 |studyid), data  = train)
+  newpred = tibble((predictInterval(merMod = mod_11, newdata = test,
+                                    level = 0.95, n.sims = 1000,
+                                    stat = "median", type="linear.prediction",
+                                    include.resid.var = T)))
+  #newpred=predict(mod_1, newdata=test, allow.new.levels = T)
+ # true=mean(test$lnwtp)
+  true = rep(mean(test$lnwtp),nrow(test))
+  error=(true-newpred$fit)
+  rmse=sqrt(mean(error^2))
+  mse=mean((newpred$fit-true)^2)
+  R2=1-(sum((true-newpred$fit)^2)/sum((true-mean(true))^2))
+  mae=mean(abs(error))
+  temp2[fold$subsets[fold$which == i], ]$holdoutpred <- newpred$fit
+  temp2[fold$subsets[fold$which == i], ]$RMSE=rmse
+  temp2[fold$subsets[fold$which == i], ]$MSE=mse
+  temp2[fold$subsets[fold$which == i], ]$MAE=mae
+  temp2[fold$subsets[fold$which == i], ]$R2=R2
+  temp2[fold$subsets[fold$which == i], ]$AIC=AIC(mod_1)
+  temp2[fold$subsets[fold$which == i], ]$BIC=BIC(mod_1)
+  temp2[fold$subsets[fold$which == i], ]$Fold=i
+}
+
+temp2
+
+temp2 %>% gather(.,MSE:BIC,key ="Metric",value = "Value") %>% 
+  ggplot(aes(x=Metric,y=Value,fill=Metric)) + 
+  geom_boxplot() +
+  coord_flip() +
+  facet_wrap(~Metric,ncol=1,scales="free")+
+  theme_bw()
+
+temp2 %>% dplyr::select(RMSE, MSE, MAE, R2, AIC, BIC) %>% map_dbl(median,na.rm=T)
 #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<bayesian>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 priors<-c(set_prior("normal(0,10)", class="b"),#prior for the beta's
 		 set_prior("inv_gamma(.5,.5)", class="sigma"))#prior for the residual std. deviation
