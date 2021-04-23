@@ -10,7 +10,7 @@ if (!require(pacman)) {
 p_load(tidyverse, dplyr, summarytools, gtsummary)
 
 df_sum <- df %>%
-	select(lnwtp, lnyear, local, prov, reg, cult, lninc, forest, volunt,
+	dplyr::select(lnwtp, lnyear, local, prov, reg, cult, lninc, forest, volunt,
 		   lumpsum, ce, nrev, lnq_change, us) 
 #Summary Stats for whole data
 sum_whole <-  df_sum %>% descr(stats = "common") %>% tb()
