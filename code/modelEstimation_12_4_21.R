@@ -6,7 +6,7 @@ if (!require(pacman)) {
 	library(pacman)}
 
 # Load Packages
-p_load(sjPlot, tableone, stargazer, broom, tidyverse, lme4, car, MASS, WeMix, metafor, merTools,  brms, rstanarm, rstan, sjstats, lmerTest)
+p_load(sjPlot, tableone, stargazer, broom, tidyverse, lme4, car, MASS, WeMix, metafor, merTools,  brms, rstanarm, rstan, sjstats, lmerTest, caret)
 
 # Import data
 #-----------------------------------------------
@@ -52,7 +52,10 @@ boxplot(df$lnwtp)
 
 #a)....Checking for multicollinearity with correlation map: Will use VIF to formally test it
 #1. Correlation matrix
-cormat <- round(cor(df_cor),2)
+cormat <- round(cor(as.matrix(df_cor),2))
+highlyCorrelated <- findCorrelation(cor(as.matrix(df_cor)), cutoff=0.5, verbose = FALSE, names = T)
+cormat <- cormat %>% filter(index == 19)
+print(highlyCorrelated)
 head(cormat)
 #Reshape above matrix
 library(reshape2)
@@ -248,7 +251,7 @@ df_prediction_us_on_can <- data.frame((predictInterval(merMod = Model_2_us, newd
                                                 level = 0.95, n.sims = 1000,
                                                 stat = "median", type="linear.prediction",
                                                 include.resid.var = TRUE))) %>%
-  mutate(fit = fit + df_can$lnq_change) #: use this only for model 2 cos dep var is lnwtp - lnq_change
+mutate(fit = fit + df_can$lnq_change) #: use this only for model 2 cos dep var is lnwtp - lnq_change
 
 min(df_prediction_us_on_can$fit) # to check if there are negative predictions: must not be true for log-log
 #There is no negative prediction so good to go
@@ -431,14 +434,13 @@ for(i in 1:10){
   temp2[fold$subsets[fold$which == i], ]$BIC=BIC(mod_1)
   temp2[fold$subsets[fold$which == i], ]$Fold=i
 }
-
 temp2
 
 temp2 %>% gather(.,MSE:BIC,key ="Metric",value = "Value") %>% 
   ggplot(aes(x=Metric,y=Value,fill=Metric)) + 
   geom_boxplot() +
   coord_flip() +
-  facet_wrap(~Metric,ncol=1,scales="free")+
+  facet_wrap(~Metric, ncol=1, scales="free") +
   theme_bw()
 
 temp2 %>% dplyr::select(RMSE, MSE, MAE, R2, AIC, BIC) %>% map_dbl(median,na.rm=T)
