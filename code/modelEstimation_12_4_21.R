@@ -83,6 +83,19 @@ Model_1c <- lmer(lnwtp ~  lnq0 + lnq_change +
 summary(Model_1b)
 ranova(Model_1c) 
 performance::performance_aic(Model_1c)
+
+#US-Canada model summary results
+class(Model_1) <- "lmerMod"
+class(Model_1b) <- "lmerMod"
+class(Model_1c) <- "lmerMod"
+
+
+stargazer(Model_1, Model_1b, Model_1c,
+          type = "html",
+          out="output/model1-Us-Canada_models.doc",
+          style = "qje",
+          single.row = TRUE)
+
 #Model 2: dep var is lnwtp2 and rel ind vars: lnqo
 Model_2 <- lmer(lnwtp2 ~ lnyear  + local + prov + reg + cult +forest + 
                   volunt + lumpsum + ce + nrev + lnq0 + us +
@@ -97,6 +110,18 @@ summary(Model_2c)
 ranova(Model_2) 
 
 performance::performance_aic(Model_2c)
+
+#US-Canada model summary results
+class(Model_2) <- "lmerMod"
+class(Model_2b) <- "lmerMod"
+class(Model_2c) <- "lmerMod"
+
+
+stargazer(Model_2, Model_2b, Model_2c,
+          type = "html",
+          out="output/model2-Us-Canada_models.doc",
+          style = "qje",
+          single.row = TRUE)
 
 #Model Diagnostics
 #checking if the random coefficient model is really significant
@@ -145,21 +170,25 @@ stargazer(Model_1, Model_2,
           single.row = TRUE)
 #----------------US study only models--------------------
 df_us <- df %>% filter(us ==1)
-
+#lnq_change + us + lninc + prov + reg + cult + volunt + lumpsum +
 #. Model 1
-Model_1_us <- lmer(lnwtp ~ lnyear  + local + prov + reg + cult  + forest + lninc +
+Model_1_us <- lmer(lnwtp ~ lnyear  + local + prov + reg + cult  + forest +
 							volunt + lumpsum + ce + lnq0 + lnq_change + (1 |studyid),
 							data  = df_us)
+Model_1b_us <- lmer(lnwtp ~  lnq0 + lnq_change + (1 |studyid),
+                   data  = df_us)
 
-ranova(Model_1_us) 
-summary(Model_1_us)
+Model_1c_us <- lmer(lnwtp ~  lnq0 + lnq_change + lninc + prov + reg + cult + volunt + lumpsum + (1 |studyid),
+                    data  = df_us)
+ranova(Model_1c_us) 
+summary(Model_1c_us)
 performance::check_collinearity(Model_1_us)
 performance::check_heteroscedasticity(Model_1_us)
 performance::rmse(Model_1_us)
 performance::r2(Model_1_us)
 
 #. Model 2
-Model_2_us <- lmer(lnwtp2 ~ lnyear  + local + prov + reg + cult  + forest + lninc +
+Model_2_us <- lmer(lnwtp2 ~ lnyear  + local + prov + reg + cult  + forest +
                      volunt + lumpsum + ce + nrev + lnq0 + (1 |studyid),
                    data  = df_us)
 
@@ -170,6 +199,50 @@ performance::check_collinearity(Model_2_us)
 performance::check_heteroscedasticity(Model_2_us)
 performance::icc(Model_1_us)
 performance::r2(Model_2_us)
+
+#OLS
+#. Model 1
+Model_1_us_ols <- lm(lnwtp ~ lnyear  + local + prov + reg + cult  + forest + lninc +
+                     volunt + lumpsum + ce + lnq0 + lnq_change,
+                   data  = df_us)
+
+Model_1b_us_ols <- lm(lnwtp ~  lnq0 + lnq_change,
+                    data  = df_us)
+
+Model_1c_us_ols <- lm(lnwtp ~  lnq0 + lnq_change + lninc + prov + reg + cult + volunt + lumpsum,
+                    data  = df_us)
+
+summary(Model_1_us_ols)
+summary(Model_1b_us_ols)
+summary(Model_1c_us_ols)
+
+performance::check_heteroscedasticity(Model_1c_us_ols)
+
+stargazer(Model_1_us_ols, Model_1b_us_ols, Model_1c_us_ols,
+          type = "html",
+          out="output/model1-Us_models.doc",
+          style = "qje",
+          single.row = TRUE)
+
+#. Model 2
+Model_2_us_ols <- lm(lnwtp2 ~ lnyear  + local + prov + reg + cult  + forest +
+                     volunt + lumpsum + ce + nrev + lnq0,
+                   data  = df_us)
+
+Model_2b_us_ols <- lm(lnwtp2 ~  lnq0,
+                      data  = df_us)
+
+Model_2c_us_ols <- lm(lnwtp2 ~  lnq0 + lninc + prov + reg + cult + volunt + lumpsum,
+                      data  = df_us)
+summary(Model_2_us_ols)
+summary(Model_2b_us_ols)
+summary(Model_2c_us_ols)
+
+stargazer(Model_2_us_ols, Model_2b_us_ols, Model_2c_us_ols,
+          type = "html",
+          out="output/model1-Us_models.doc",
+          style = "qje",
+          single.row = TRUE)
 
 #US only model summary results
 class(Model_1_us) <- "lmerMod"
