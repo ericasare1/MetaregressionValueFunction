@@ -54,8 +54,9 @@ boxplot(df$lnwtp)
 #a)....Checking for multicollinearity with correlation map: Will use VIF to formally test it
 #1. Correlation matrix
 cormat <- round(cor(as.matrix(df_cor),2))
-highlyCorrelated <- findCorrelation(cor(as.matrix(df_cor)), cutoff=0.5, verbose = FALSE, names = T)
+highlyCorrelated <- findCorrelation(cor(as.matrix(df_cor)), cutoff=0.7, verbose = FALSE, names = T)
 cormat <- cormat %>% filter(index == 19)
+#highlyCorrelated_pro <- findCorrelation(cor(as.matrix(df_cor_prov)), cutoff= 0.7, verbose = FALSE, names = T)
 print(highlyCorrelated)
 head(cormat)
 #Reshape above matrix
@@ -73,15 +74,29 @@ ggplot(data = melted_cormat, aes(x=Var1, y=Var2, fill=value)) +
 Model_1 <- lmer(lnwtp ~ lnyear  + local + prov + reg + cult + lninc +forest + 
 					 volunt + lumpsum + ce + nrev + lnq0 + lnq_change + us +
 					   (1 |studyid), data  = df)
-summary(Model_1)
-ranova(Model_1) 
 
+Model_1b <- lmer(lnwtp ~  lnq0 + lnq_change + us + lninc + prov + reg + cult + volunt + lumpsum +
+                  (1 |studyid), data  = df)
+
+Model_1c <- lmer(lnwtp ~  lnq0 + lnq_change + 
+                   (1 |studyid), data  = df)
+summary(Model_1b)
+ranova(Model_1c) 
+performance::performance_aic(Model_1c)
 #Model 2: dep var is lnwtp2 and rel ind vars: lnqo
 Model_2 <- lmer(lnwtp2 ~ lnyear  + local + prov + reg + cult +forest + 
                   volunt + lumpsum + ce + nrev + lnq0 + us +
                   (1 |studyid), data  = df) #lninc dropped cos of multicollinearity
-summary(Model_2)
+
+Model_2b <- lmer(lnwtp2 ~  lnq0 + 
+                  (1 |studyid), data  = df) #lninc dropped cos of multicollinearity
+
+Model_2c <- lmer(lnwtp2 ~  lnq0 + us + prov + reg + cult + volunt + lumpsum +
+                   (1 |studyid), data  = df) #lninc dropped cos of multicollinearity
+summary(Model_2c)
 ranova(Model_2) 
+
+performance::performance_aic(Model_2c)
 
 #Model Diagnostics
 #checking if the random coefficient model is really significant
