@@ -23,16 +23,17 @@ df <- df %>%
   filter(wlfresh == 1) %>%
   mutate(lnq0 = log(q0+1), #plus 1 to prevent taking the log of zero
          lnq_change = log(q1-q0),
-         lnwtp2 = lnwtp - lnq_change
+         lnwtp2 = lnwtp - lnq_change,
+         us = ifelse(authors=="us", 1,0)
   ) 
 
 df %>% View()
-df_us %>% filter(us == 1) %>% nrow() # number of observation of us studies
-df_can %>% filter(us == 0) %>% nrow() # number of observation of canadian studies
+df_us <- df %>% filter(us == 1) %>% nrow() # number of observation of us studies
+df_can <- df %>% filter(us == 0) %>% nrow() # number of observation of canadian studies
 
 #dataframe to create correlation map from more relevant model variables
 df_cor <- df %>%  
-  dplyr::select(lnwtp, lnwtp2, wtp_2017, q0, q1, lnyear, local, prov, reg, cult, lninc, forest, 
+  dplyr::select(q0, q1, lnyear, local, prov, reg, cult, lninc, forest, 
                 volunt, lumpsum, ce, nrev, median, lnq0, lnq_change, us)
 
 
