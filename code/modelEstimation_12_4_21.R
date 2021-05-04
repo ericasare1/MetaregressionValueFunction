@@ -71,16 +71,16 @@ ggplot(data = melted_cormat, aes(x=Var1, y=Var2, fill=value)) +
 #-------------------Model Estimation : Results of Exploratory Exercise looks good to me
 
 #Model 1: dep var is lnwtp and rel ind vars: lnqo and lnq_change
-Model_1 <- lmer(lnwtp ~ lnyear  + local + prov + reg + cult + lninc +forest + 
+Model_1c <- lmer(lnwtp ~ lnyear  + local + prov + reg + cult + lninc +forest + 
 					 volunt + lumpsum + ce + nrev + lnq0 + lnq_change + us +
 					   (1 |studyid), data  = df)
 
-Model_1b <- lmer(lnwtp ~  lnq0 + lnq_change + us + lninc + prov + reg + cult + volunt + lumpsum +
+Model_1b <- lmer(lnwtp ~  lnq0 + lnq_change + us + prov + reg + cult + volunt + lumpsum +
                   (1 |studyid), data  = df)
 
-Model_1c <- lmer(lnwtp ~  lnq0 + lnq_change + 
+Model_1 <- lmer(lnwtp ~  lnq0 + lnq_change + 
                    (1 |studyid), data  = df)
-summary(Model_1b)
+summary(Model_1c)
 ranova(Model_1c) 
 performance::performance_aic(Model_1c)
 
@@ -97,16 +97,16 @@ stargazer(Model_1, Model_1b, Model_1c,
           single.row = TRUE)
 
 #Model 2: dep var is lnwtp2 and rel ind vars: lnqo
-Model_2 <- lmer(lnwtp2 ~ lnyear  + local + prov + reg + cult +forest + 
+Model_2c <- lmer(lnwtp2 ~ lnyear  + local + prov + reg + cult +forest + 
                   volunt + lumpsum + ce + nrev + lnq0 + us +
                   (1 |studyid), data  = df) #lninc dropped cos of multicollinearity
 
-Model_2b <- lmer(lnwtp2 ~  lnq0 + 
+Model_2 <- lmer(lnwtp2 ~  lnq0 + 
                   (1 |studyid), data  = df) #lninc dropped cos of multicollinearity
 
-Model_2c <- lmer(lnwtp2 ~  lnq0 + us + prov + reg + cult + volunt + lumpsum +
+Model_2b <- lmer(lnwtp2 ~  lnq0 + prov + reg + cult + volunt + lumpsum + us +
                    (1 |studyid), data  = df) #lninc dropped cos of multicollinearity
-summary(Model_2c)
+summary(Model_2b)
 ranova(Model_2) 
 
 performance::performance_aic(Model_2c)
@@ -202,14 +202,14 @@ performance::r2(Model_2_us)
 
 #OLS
 #. Model 1
-Model_1_us_ols <- lm(lnwtp ~ lnyear  + local + prov + reg + cult  + forest + lninc +
+Model_1c_us_ols <- lm(lnwtp ~ lnyear  + local + prov + reg + cult  + forest + lninc +
                      volunt + lumpsum + ce + lnq0 + lnq_change,
                    data  = df_us)
 
-Model_1b_us_ols <- lm(lnwtp ~  lnq0 + lnq_change,
+Model_1_us_ols <- lm(lnwtp ~  lnq0 + lnq_change,
                     data  = df_us)
 
-Model_1c_us_ols <- lm(lnwtp ~  lnq0 + lnq_change + lninc + prov + reg + cult + volunt + lumpsum,
+Model_1b_us_ols <- lm(lnwtp ~  lnq0 + lnq_change + prov + reg + cult + volunt + lumpsum,
                     data  = df_us)
 
 summary(Model_1_us_ols)
@@ -225,14 +225,14 @@ stargazer(Model_1_us_ols, Model_1b_us_ols, Model_1c_us_ols,
           single.row = TRUE)
 
 #. Model 2
-Model_2_us_ols <- lm(lnwtp2 ~ lnyear  + local + prov + reg + cult  + forest +
+Model_2c_us_ols <- lm(lnwtp2 ~ lnyear  + local + prov + reg + cult  + forest +
                      volunt + lumpsum + ce + nrev + lnq0,
                    data  = df_us)
 
-Model_2b_us_ols <- lm(lnwtp2 ~  lnq0,
+Model_2_us_ols <- lm(lnwtp2 ~  lnq0,
                       data  = df_us)
 
-Model_2c_us_ols <- lm(lnwtp2 ~  lnq0 + lninc + prov + reg + cult + volunt + lumpsum,
+Model_2b_us_ols <- lm(lnwtp2 ~  lnq0 + lninc + prov + reg + cult + volunt + lumpsum,
                       data  = df_us)
 summary(Model_2_us_ols)
 summary(Model_2b_us_ols)
@@ -240,28 +240,214 @@ summary(Model_2c_us_ols)
 
 stargazer(Model_2_us_ols, Model_2b_us_ols, Model_2c_us_ols,
           type = "html",
-          out="output/model1-Us_models.doc",
+          out="output/model2-Us_models.doc",
           style = "qje",
           single.row = TRUE)
 
-#US only model summary results
-class(Model_1_us) <- "lmerMod"
-class(Model_2_us) <- "lmerMod"
+performance::performance_aic(Model_1c_us_ols)
+performance::performance_aic(Model_2c_us_ols)
 
-stargazer(Model_1_us, Model_2_us,
-          type = "html",
-          out="Us_models.doc",
-          style = "qje",
-          single.row = TRUE)
-
-# all models
-stargazer(Model_1, Model_1_us, Model_2, Model_2_us,
-          type = "html",
-          out="all_models.doc",
-          style = "qje",
-          single.row = TRUE)
 
 #............Transfer Error
+#a) Mean Value Transfer Error
+set.seed(123) #set random seed for reproducibility of results
+df <- df %>%
+  mutate(meanlnwtp = mean(lnwtp))
+df_us <- df_us %>%
+  mutate(meanlnwtp = mean(lnwtp))
+
+#splitting a data set to do 10 fold cv using the cvTools package
+fold_cv = function(data,k){
+  folds=cvTools::cvFolds(nrow(data),K=k)
+  invisible(folds)
+}
+
+
+#We apply the fold_cv function on our dataset… We set k=10 for a 10 folds CV
+fold <- df %>% fold_cv(., k=10)
+str(fold)
+#creating a temp data to store results
+temp <- df %>% 
+  mutate(Fold=rep(0,nrow(df)),
+         holdoutpred=rep(0,nrow(df)),
+         MSE=rep(0,nrow(.)),
+         RMSE=rep(0,nrow(.)))
+
+for(i in 1:10){
+  train =temp[fold$subsets[fold$which != i], ]  #set the first n-1 dataset for training
+  test =temp[fold$subsets[fold$which == i], ]  # set first 1/1oth dataset for test
+  mod_uscan = lmer(lnwtp ~  lnq0 + lnq_change + us + prov + reg + cult + volunt + lumpsum +
+                   (1 |studyid),  data= train)
+  newpred <- data.frame((predictInterval(merMod = mod_uscan, newdata = test,
+                              level = 0.95, n.sims = 1000,
+                              stat = "median", type="linear.prediction",
+                              include.resid.var = TRUE)))
+  true = test$meanlnwtp #find the original true dependent var from testdata
+  error= (true - newpred$fit) #deviations of true from predicted dependent variable
+  #different measures of model fit
+  rmse=sqrt(mean(error^2)) 
+  mae=mean(abs(error))
+  #storing results from the cross validation looping
+  temp[fold$subsets[fold$which == i], ]$holdoutpred <- newpred$fit
+  temp[fold$subsets[fold$which == i], ]$RMSE=rmse
+  temp[fold$subsets[fold$which == i], ]$MSE=mae
+  temp[fold$subsets[fold$which == i], ]$Fold=i
+}
+
+temp <- temp %>% rename(MAE = MSE) %>% dplyr::select(RMSE, MAE)
+
+temp %>% gather(., RMSE, MAE ,key ="Metric",value = "Value") %>% 
+  ggplot(aes(x=Metric,y=Value,fill=Metric)) + 
+  geom_boxplot() +
+  coord_flip() +
+  facet_wrap(~Metric, ncol=1, scales="free") +
+  theme_bw()
+
+temp %>% dplyr::select(RMSE, MAE) %>% map_dbl(median,na.rm=T)
+
+#B. Transfer 
+#creating a temp data to store results
+temp_uscan <- df %>% 
+  mutate(Fold=rep(0,nrow(df)),
+         holdoutpred=rep(0,nrow(df)),
+         MSE=rep(0,nrow(.)),
+         RMSE=rep(0,nrow(.)))
+
+for(i in 1:10){
+  train =temp_uscan[fold$subsets[fold$which != i], ]  #set the first n-1 dataset for training
+  test =temp_uscan[fold$subsets[fold$which == i], ]  # set first 1/1oth dataset for test
+  mod_uscan = lmer(lnwtp ~  lnq0 + lnq_change + us + prov + reg + cult + volunt + lumpsum +
+                     (1 |studyid),  data= train)
+  newpred <- data.frame((predictInterval(merMod = mod_uscan, newdata = test,
+                                         level = 0.95, n.sims = 1000,
+                                         stat = "median", type="linear.prediction",
+                                         include.resid.var = TRUE)))
+  true = test$lnwtp #find the original true dependent var from testdata
+  error= (true - newpred$fit) #deviations of true from predicted dependent variable
+  #different measures of model fit
+  rmse=sqrt(mean(error^2)) 
+  mae=mean(abs(error))
+  #storing results from the cross validation looping
+  temp_uscan[fold$subsets[fold$which == i], ]$holdoutpred <- newpred$fit
+  temp_uscan[fold$subsets[fold$which == i], ]$RMSE=rmse
+  temp_uscan[fold$subsets[fold$which == i], ]$MSE=mae
+  temp_uscan[fold$subsets[fold$which == i], ]$Fold=i
+}
+
+temp_uscan <- temp_uscan %>% rename(MAE = MSE) %>% dplyr::select(RMSE, MAE)
+
+temp_uscan %>% gather(., RMSE, MAE ,key ="Metric",value = "Value") %>% 
+  ggplot(aes(x=Metric,y=Value,fill=Metric)) + 
+  geom_boxplot() +
+  coord_flip() +
+  facet_wrap(~Metric, ncol=1, scales="free") +
+  theme_bw()
+
+temp_uscan %>% dplyr::select(RMSE, MAE) %>% map_dbl(median,na.rm=T)
+
+#<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<transfer error on only the can dataset
+#preparing data for cv
+nrow(df_us)
+df_can <- df %>% filter(us==0)
+nrow(df_can)
+52.63158
+
+set.seed(123)
+# creating 90% of the can dataset
+#df_can_10 <- sample_frac(df_can, 0.5)
+random_sample_can <- createDataPartition(df_can$lnwtp,
+                                         p = 0.41, list = FALSE)
+# generating training dataset
+test_can <- df_can[random_sample_can, ]
+nrow(test_can)
+# generating testing dataset
+train_can <- df_can[-random_sample_can, ]
+nrow(train_can)
+
+df_can_10 <- test_can %>% slice_head(n = 10)
+test_can_1 <- test_can %>% slice_tail(n = 1)
+df_can_9 <- rbind(test_can_1, train_can)
+df1 <- rbind(df_can_9, df_us)
+
+#splitting a data set to do 10 fold cv using the cvTools package
+fold_cv = function(data,k){
+  folds=cvTools::cvFolds(nrow(data),K=k)
+  invisible(folds)
+}
+
+#We apply the fold_cv function on our dataset… We set k=10 for a 10 folds CV
+
+fold1 <- df1 %>% fold_cv(., k=10)
+fold2 <- df_can_9 %>% fold_cv(., k=10)
+
+#creating a temp data to store results
+temp_can <- df1 %>% 
+  mutate(Fold=rep(0,nrow(df1)),
+         holdoutpred=rep(0,nrow(df1)),
+         MSE=rep(0,nrow(.)),
+         RMSE=rep(0,nrow(.)))
+
+for(i in 1:10){
+  train =temp_can[fold1$subsets[fold1$which != i], ]  #set the first n-1 dataset for training
+  #test =temp_uscan[fold$subsets[fold$which == i], ]  # set first 1/1oth dataset for test
+  test = df_can_9
+  mod_uscan = lmer(lnwtp ~  lnq0 + lnq_change + us + prov + reg + cult + volunt + lumpsum +
+                     (1 |studyid),  data= train)
+  newpred <- data.frame((predictInterval(merMod = mod_uscan, newdata = test,
+                                         level = 0.95, n.sims = 1000,
+                                         stat = "median", type="linear.prediction",
+                                         include.resid.var = TRUE)))
+  true = test$lnwtp #find the original true dependent var from testdata
+  error= (true - newpred$fit) #deviations of true from predicted dependent variable
+  #different measures of model fit
+  rmse=sqrt(mean(error^2)) 
+  mae=mean(abs(error))
+  #storing results from the cross validation looping
+  temp_can[fold1$subsets[fold1$which == i], ]$RMSE=rmse
+  temp_can[fold1$subsets[fold1$which == i], ]$MSE=mae
+  temp_can[fold1$subsets[fold1$which == i], ]$Fold=i
+}
+
+temp_can1 <- temp_can %>% rename(MAE = MSE) %>% dplyr::select(RMSE, MAE)
+
+temp_uscan %>% gather(., RMSE, MAE ,key ="Metric",value = "Value") %>% 
+  ggplot(aes(x=Metric,y=Value,fill=Metric)) + 
+  geom_boxplot() +
+  coord_flip() +
+  facet_wrap(~Metric, ncol=1, scales="free") +
+  theme_bw()
+
+temp_can1 %>% dplyr::select(RMSE, MAE) %>% map_dbl(median,na.rm=T)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 set.seed(1200)
 df_can <- df %>% filter(us==0)
 

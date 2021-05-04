@@ -1,0 +1,25 @@
+
+<table style="text-align:center"><tr><td colspan="4" style="border-bottom: 1px solid black"></td></tr><tr><td style="text-align:left"></td><td colspan="3">lnwtp2</td></tr>
+<tr><td style="text-align:left"></td><td>(1)</td><td>(2)</td><td>(3)</td></tr>
+<tr><td colspan="4" style="border-bottom: 1px solid black"></td></tr><tr><td style="text-align:left">lnyear</td><td></td><td></td><td>-2.539<sup>***</sup> (0.719)</td></tr>
+<tr><td style="text-align:left">local</td><td></td><td></td><td>4.669<sup>***</sup> (0.612)</td></tr>
+<tr><td style="text-align:left">lnq0</td><td>-0.102 (0.175)</td><td>0.268 (0.157)</td><td>-0.378<sup>**</sup> (0.156)</td></tr>
+<tr><td style="text-align:left">lninc</td><td></td><td>5.014<sup>**</sup> (1.867)</td><td></td></tr>
+<tr><td style="text-align:left">prov</td><td></td><td>-3.137<sup>***</sup> (0.873)</td><td>-3.393<sup>***</sup> (0.611)</td></tr>
+<tr><td style="text-align:left">reg</td><td></td><td>2.377<sup>**</sup> (0.864)</td><td>-0.957 (0.807)</td></tr>
+<tr><td style="text-align:left">cult</td><td></td><td>0.317 (0.877)</td><td>-1.962<sup>*</sup> (0.920)</td></tr>
+<tr><td style="text-align:left">forest</td><td></td><td></td><td>2.469<sup>***</sup> (0.628)</td></tr>
+<tr><td style="text-align:left">volunt</td><td></td><td>-0.395 (0.884)</td><td>-0.758 (0.732)</td></tr>
+<tr><td style="text-align:left">lumpsum</td><td></td><td>1.854<sup>**</sup> (0.738)</td><td>3.233<sup>*</sup> (1.696)</td></tr>
+<tr><td style="text-align:left">ce</td><td></td><td></td><td>-2.896<sup>*</sup> (1.348)</td></tr>
+<tr><td style="text-align:left">nrev</td><td></td><td></td><td>0.974 (1.753)</td></tr>
+<tr><td style="text-align:left">Constant</td><td>-2.313 (1.677)</td><td>-66.160<sup>**</sup> (22.779)</td><td>3.295 (2.973)</td></tr>
+<tr><td style="text-align:left"><em>N</em></td><td>21</td><td>21</td><td>21</td></tr>
+<tr><td style="text-align:left">R<sup>2</sup></td><td>0.018</td><td>0.742</td><td>0.957</td></tr>
+<tr><td style="text-align:left">Adjusted R<sup>2</sup></td><td>-0.034</td><td>0.604</td><td>0.904</td></tr>
+<tr><td style="text-align:left">Residual Std. Error</td><td>1.981 (df = 19)</td><td>1.227 (df = 13)</td><td>0.604 (df = 9)</td></tr>
+<tr><td style="text-align:left">F Statistic</td><td>0.341 (df = 1; 19)</td><td>5.351<sup>***</sup> (df = 7; 13)</td><td>18.137<sup>***</sup> (df = 11; 9)</td></tr>
+<tr><td colspan="4" style="border-bottom: 1px solid black"></td></tr><tr><td style="text-align:left"><em>Notes:</em></td><td colspan="3" style="text-align:right"><sup>***</sup>Significant at the 1 percent level.</td></tr>
+<tr><td style="text-align:left"></td><td colspan="3" style="text-align:right"><sup>**</sup>Significant at the 5 percent level.</td></tr>
+<tr><td style="text-align:left"></td><td colspan="3" style="text-align:right"><sup>*</sup>Significant at the 10 percent level.</td></tr>
+</table>
