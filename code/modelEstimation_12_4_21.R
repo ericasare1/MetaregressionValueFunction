@@ -450,25 +450,7 @@ temp_can1 %>% dplyr::select(RMSE, MAE) %>% map_dbl(median,na.rm=T)
 
 
 # Transfer error --only usa model and testing data is same 4 can observations as above
-#<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<transfer error : 4 data Canada points are used as test data (not included in the model data)
-#preparing data for cv
-df_can <- df %>% filter(us==0)
-set.seed(123)
-# creating 90% of the can dataset
-#df_can_10 <- sample_frac(df_can, 0.5)
-random_sample_can <- createDataPartition(df_can$lnwtp,
-                                         p = 0.10, list = FALSE)
-# generating training dataset
-test_can <- df_can[random_sample_can, ] %>%
-  mutate(meanlnwtp = mean(lnwtp))
-nrow(test_can)
-# generating testing dataset
-train_can <- df_can[-random_sample_can, ] %>%
-  mutate(meanlnwtp = mean(lnwtp))
-ncol(train_can)
-ncol(df_us)
-
-df1 <- rbind(train_can, df_us)
+#<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<transfer error : 4 data Canada points are used as test data (not 
 
 #We apply the fold_cv function on our dataset… We set k=10 for a 10 folds CV
 
@@ -513,163 +495,43 @@ temp_us %>% dplyr::select(RMSE, MAE) %>% map_dbl(median,na.rm=T)
 
 #mean value TE: using 4 canadian data points as test data
 #creating a temp data to store results
-temp_can1 <- df1 %>% 
-  mutate(Fold=rep(0,nrow(df1)),
-         holdoutpred=rep(0,nrow(df1)),
+temp_us1 <- df_us %>% 
+  mutate(Fold=rep(0,nrow(df_us)),
+         holdoutpred=rep(0,nrow(df_us)),
          MSE=rep(0,nrow(.)),
          RMSE=rep(0,nrow(.)))
 
 for(i in 1:10){
-  train =temp_can1[fold1$subsets[fold1$which != i], ]  #set the first n-1 dataset for training
-  #test =temp_uscan[fold$subsets[fold$which == i], ]  # set first 1/1oth dataset for test
-  test = test_can
-  mod_uscan = lmer(lnwtp ~  lnq0 + lnq_change + prov + reg + cult + volunt + lumpsum,
-                   data= train_us)
-  newpred <- data.frame((predictInterval(merMod = mod_uscan, newdata = test,
-                                         level = 0.95, n.sims = 1000,
-                                         stat = "median", type="linear.prediction",
-                                         include.resid.var = TRUE)))
+  train_us =temp_us1[fold_us$subsets[fold_us$which != i], ]  #set the first n-1 dataset for training
+  test =test_can  # set first 1/1oth dataset for test
+  mod_uscan = lm(lnwtp ~  lnq0 + lnq_change + prov + reg + cult + volunt + lumpsum,
+                 data= train_us)
+  newpred <- predict(mod_uscan, test)
   true = test$meanlnwtp #find the original true dependent var from testdata
-  error= (true - newpred$fit) #deviations of true from predicted dependent variable
+  error = (true - newpred) #deviations of true from predicted dependent variable
   #different measures of model fit
   rmse=sqrt(mean(error^2)) 
   mae=mean(abs(error))
   #storing results from the cross validation looping
-  temp_can1[fold1$subsets[fold1$which == i], ]$RMSE=rmse
-  temp_can1[fold1$subsets[fold1$which == i], ]$MSE=mae
-  temp_can1[fold1$subsets[fold1$which == i], ]$Fold=i
+  temp_us1[fold_us$subsets[fold_us$which == i], ]$RMSE=rmse
+  temp_us1[fold_us$subsets[fold_us$which == i], ]$MSE=mae
+  temp_us1[fold_us$subsets[fold_us$which == i], ]$Fold=i
 }
 
-temp_can1 <- temp_can1 %>% rename(MAE = MSE) %>% dplyr::select(RMSE, MAE)
+temp_us1 <- temp_us1 %>% rename(MAE = MSE) %>% dplyr::select(RMSE, MAE)
 
-temp_can1 %>% gather(., RMSE, MAE ,key ="Metric",value = "Value") %>% 
+temp_us1 %>% gather(., RMSE, MAE ,key ="Metric",value = "Value") %>% 
   ggplot(aes(x=Metric,y=Value,fill=Metric)) + 
   geom_boxplot() +
   coord_flip() +
   facet_wrap(~Metric, ncol=1, scales="free") +
   theme_bw()
 
-temp_can1 %>% dplyr::select(RMSE, MAE) %>% map_dbl(median,na.rm=T)
+temp_us1 %>% dplyr::select(RMSE, MAE) %>% map_dbl(median,na.rm=T)
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-set.seed(1200)
-df_can <- df %>% filter(us==0)
-
-#US-Canada model: Model 1 
-df_prediction_alldata_m1 <- data.frame((predictInterval(merMod = Model_1, newdata = df_can,
-                       level = 0.95, n.sims = 1000,
-                       stat = "median", type="linear.prediction",
-                       include.resid.var = TRUE))) #+ df$lnq_change : use this only for model 2
-min(df_prediction_alldata$fit) # to check if there are negative predictions: must not be true for log-log
-#There is no negative prediction so good to go
-
-transfer_error_fulldata_m1 <- df_prediction_alldata_m1 %>%
-  tibble(wtp = df_can$wtp_2017) %>%
-  mutate(wtp_ypred = exp(fit) - 1,
-         TE_MA = as.numeric((abs(wtp - wtp_ypred)/wtp)*100),
-         TE_UnitTransfer = as.numeric((abs(wtp - mean(wtp))/wtp)*100),
-         lowerC1_wtp = exp(lwr) - 1,
-         upperC1_wtp = exp(upr) - 1)
-
-transfer_error_fulldata %>% View()
-mean(transfer_error_fulldata_m1$TE_MA)
-mean(transfer_error_fulldata_m1$TE_UnitTransfer)
-write_csv(transfer_error_fulldata_m1, "data/transfer_error_alldata_m1.csv")
-
-#US-Canada model: Model 2 
-df_prediction_alldata_m2 <- data.frame((predictInterval(merMod = Model_2, newdata = df_can,
-                                                     level = 0.95, n.sims = 1000,
-                                                     stat = "median", type="linear.prediction",
-                                                     include.resid.var = TRUE))) %>%
-  mutate(
-    fit = fit + df_can$lnq_change) #+ df$lnq_change : use this only for model 2
-min(df_prediction_alldata$fit) # to check if there are negative predictions: must not be true for log-log
-#There is no negative prediction so good to go
-
-transfer_error_fulldata_m2 <- df_prediction_alldata_m2 %>%
-  tibble(wtp = df_can$wtp_2017) %>%
-  mutate(wtp_ypred = exp(fit) - 1,
-         TE_MA = as.numeric((abs(wtp - wtp_ypred)/wtp)*100),
-         TE_UnitTransfer = as.numeric((abs(wtp - mean(wtp))/wtp)*100),
-         lowerC1_wtp = exp(lwr) - 1,
-         upperC1_wtp = exp(upr) - 1)
-
-transfer_error_fulldata %>% View()
-mean(transfer_error_fulldata_m2$TE_MA)
-mean(transfer_error_fulldata_m2$TE_UnitTransfer)
-write_csv(transfer_error_fulldata_m2, "data/transfer_error_alldata_m2.csv")
-
-
-#US model when prediction data is us only data: Model 1 because it fit the data better than model 2
-df_prediction_us <- data.frame((predictInterval(merMod = Model_2_us, newdata = df_us,
-                                                     level = 0.95, n.sims = 1000,
-                                                     stat = "median", type="linear.prediction",
-                                                     include.resid.var = TRUE))) %>%
-  mutate(fit = fit + df_us$lnq_change) #: use this only for model 2 cos dep var is lnwtp - lnq_change
-
-min(df_prediction_us$fit) # to check if there are negative predictions: must not be true for log-log
-#There is no negative prediction so good to go
-
-transfer_error_us <- df_prediction_us %>%
-  tibble(wtp = df_us$wtp_2017) %>%
-  mutate(wtp_ypred = exp(fit) - 1,
-         TE_MA = as.numeric((abs(wtp - wtp_ypred)/wtp)*100),
-         TE_UnitTransfer = as.numeric((abs(wtp - mean(wtp))/wtp)*100),
-         lowerC1_wtp = exp(lwr) - 1,
-         upperC1_wtp = exp(upr) - 1,
-         qchange = df_us$q1-df_us$q0)
-
-transfer_error_us %>% View()
-mean(transfer_error_us$TE_MA)
-mean(transfer_error_us$TE_UnitTransfer)
-
-write_csv(transfer_error_us, "data/transfer_error_us.csv")
-
-#US model when prediction data is canada only data: Model 1 because it fit the data better than model 2
-df_prediction_us_on_can <- data.frame((predictInterval(merMod = Model_2_us, newdata = df_can,
-                                                level = 0.95, n.sims = 1000,
-                                                stat = "median", type="linear.prediction",
-                                                include.resid.var = TRUE))) %>%
-mutate(fit = fit + df_can$lnq_change) #: use this only for model 2 cos dep var is lnwtp - lnq_change
-
-min(df_prediction_us_on_can$fit) # to check if there are negative predictions: must not be true for log-log
-#There is no negative prediction so good to go
-
-transfer_error_us_on_can <- df_prediction_us_on_can %>%
-  tibble(wtp = df_can$wtp_2017) %>%
-  mutate(wtp_ypred = exp(fit) - 1,
-         TE_MA = as.numeric((abs(wtp - wtp_ypred)/wtp)*100),
-         TE_UnitTransfer = as.numeric((abs(wtp - mean(wtp))/wtp)*100),
-         lowerC1_wtp = exp(lwr) - 1,
-         upperC1_wtp = exp(upr) - 1,
-         qchange = df_can$q1-df_can$q0)
-
-transfer_error_us_on_can %>% View()
-mean(transfer_error_us_on_can$TE_MA)
-mean(transfer_error_us_on_can$TE_UnitTransfer)
-
-write_csv(transfer_error_us_on_can, "data/transfer_error_us_on_can.csv")
 
 ## -------------------Adding Up Test ------------
 df
