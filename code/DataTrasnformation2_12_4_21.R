@@ -433,4 +433,4 @@ transformed_wtp <- us_canada %>%
 		   lnwtp = log(wtp_2017)) 
 
 transformed_wtp %>% View()
-write.csv(transformed_wtp, "data/Data_for_analysis_11_4_21.csv")  # Final US-Canada data for estimations.
+write.csv(transformed_wtp, "data/Data_for_analysis_5_5_21.csv")  # Final US-Canada data for estimations.

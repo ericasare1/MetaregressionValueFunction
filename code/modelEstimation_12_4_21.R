@@ -12,7 +12,7 @@ p_load(sjPlot, tableone, stargazer, broom, tidyverse, lme4, car, MASS, WeMix, me
 #-----------------------------------------------
 df <- read_csv("data/Data_for_analysis_11_4_21.csv")
 str(df) #check the structure of variables
-
+df %>% View()
 #function to scale variables to be between 0 and 1
 normalized <- function(x) {
   (x- min(x))/(max(x) - min(x))
@@ -23,8 +23,7 @@ df <- df %>%
   filter(wlfresh == 1) %>%
   mutate(lnq0 = log(q0+1), #plus 1 to prevent taking the log of zero
          lnq_change = log(q1-q0),
-         lnwtp2 = lnwtp - lnq_change,
-         us = ifelse(authors=="us", 1,0)
+         lnwtp2 = lnwtp - lnq_change
   ) 
 
 df %>% View()
@@ -71,9 +70,9 @@ ggplot(data = melted_cormat, aes(x=Var1, y=Var2, fill=value)) +
 #-------------------Model Estimation : Results of Exploratory Exercise looks good to me
 
 #Model 1: dep var is lnwtp and rel ind vars: lnqo and lnq_change
-Model_1c <- lmer(lnwtp ~ lnyear  + local + prov + reg + cult + lninc +forest + 
-					 volunt + lumpsum + ce + nrev + lnq0 + lnq_change + us +
-					   (1 |studyid), data  = df)
+Model_1c <- lmer(lnwtp ~ lnq0 + lnq_change + lnyear  + local + us + prov + reg + 
+                   cult + lninc + forest + volunt + lumpsum + ce + nrev +
+					       (1 |studyid), data  = df)
 
 Model_1b <- lmer(lnwtp ~  lnq0 + lnq_change + us + prov + reg + cult + volunt + lumpsum +
                   (1 |studyid), data  = df)
@@ -81,8 +80,9 @@ Model_1b <- lmer(lnwtp ~  lnq0 + lnq_change + us + prov + reg + cult + volunt + 
 Model_1 <- lmer(lnwtp ~  lnq0 + lnq_change + 
                    (1 |studyid), data  = df)
 summary(Model_1b)
-ranova(Model_1c) 
+ranova(Model_1) 
 performance::performance_aic(Model_1c)
+performance::r2(Model_1)
 
 #US-Canada model summary results
 class(Model_1) <- "lmerMod"
@@ -97,14 +97,14 @@ stargazer(Model_1, Model_1b, Model_1c,
           single.row = TRUE)
 
 #Model 2: dep var is lnwtp2 and rel ind vars: lnqo
-Model_2c <- lmer(lnwtp2 ~ lnyear  + local + prov + reg + cult +forest + 
-                  volunt + lumpsum + ce + nrev + lnq0 + us +
+Model_2c <- lmer(lnwtp2 ~ lnq0 + lnyear + local + us + prov + reg + cult + forest + 
+                  volunt + lumpsum + ce + nrev +
                   (1 |studyid), data  = df) #lninc dropped cos of multicollinearity
 
 Model_2 <- lmer(lnwtp2 ~  lnq0 + 
                   (1 |studyid), data  = df) #lninc dropped cos of multicollinearity
 
-Model_2b <- lmer(lnwtp2 ~  lnq0 + prov + reg + cult + volunt + lumpsum + us +
+Model_2b <- lmer(lnwtp2 ~  lnq0 + us + prov + reg + cult + volunt + lumpsum + 
                    (1 |studyid), data  = df) #lninc dropped cos of multicollinearity
 summary(Model_2b)
 ranova(Model_2) 
@@ -127,60 +127,23 @@ stargazer(Model_2, Model_2b, Model_2c,
 #checking if the random coefficient model is really significant
 
 #Inter Class Correlation
-performance::icc(Model_1) 
-performance::icc(Model_2) 
+performance::performance_aic(Model_1c) 
+performance::performance_aic(Model_2c) 
 
-#Checking for Multicollinearity
-performance::check_collinearity(Model_1)
-performance::check_collinearity(Model_2)
-
-#c. checking for heteroscedasticity
-#c1. Graphical way
-plot(fitted((Model_1)), resid((Model_1), type = "pearson"))# this will create the plot
-abline(0,0, col="red")
-
-plot(fitted((Model_2)), resid((Model_2), type = "pearson"))# this will create the plot
-abline(0,0, col="blue")
-
-#c2. Statistical test
-performance::check_heteroscedasticity(Model_1)
-performance::check_heteroscedasticity(Model_2)
-
-#Normality of residuals
-qqnorm(resid(Model_1)) 
-qqline(resid(Model_1), col = "red") # add a perfect fit line
-
-#Model Performance
-#a. Root mean squared error
-performance::rmse(Model_1)
-performance::rmse(Model_2) #lowest
-
-#b. R square
-performance::r2(Model_1)
-performance::r2(Model_2) #better
-
-#US-Canada model summary results
-class(Model_1) <- "lmerMod"
-class(Model_2) <- "lmerMod"
-
-stargazer(Model_1, Model_2,
-          type = "html",
-          out="Us-Canada_models.doc",
-          style = "qje",
-          single.row = TRUE)
 #----------------US study only models--------------------
 df_us <- df %>% filter(us ==1)
 #lnq_change + us + lninc + prov + reg + cult + volunt + lumpsum +
 #. Model 1
-Model_1_us <- lmer(lnwtp ~ lnyear  + local + prov + reg + cult  + forest +
-							volunt + lumpsum + ce + lnq0 + lnq_change + (1 |studyid),
-							data  = df_us)
-Model_1b_us <- lmer(lnwtp ~  lnq0 + lnq_change + (1 |studyid),
+
+Model_1_us <- lmer(lnwtp ~  lnq0 + lnq_change + (1 |studyid),
                    data  = df_us)
 
-Model_1c_us <- lmer(lnwtp ~  lnq0 + lnq_change + lninc + prov + reg + cult + volunt + lumpsum + (1 |studyid),
-                    data  = df_us)
-ranova(Model_1c_us) 
+Model_1b_us <- lmer(lnwtp ~  lnq0 + lnq_change + lninc + prov + reg + cult + volunt + lumpsum +                        (1 |studyid), data  = df_us)
+
+Model_1c_us <- lmer(lnwtp ~ lnq0 + lnq_change + lnyear  + local + prov + reg + cult  + forest +
+                     volunt + lumpsum + ce + (1 |studyid),
+                   data  = df_us)
+ranova(Model_1b_us) 
 summary(Model_1c_us)
 performance::check_collinearity(Model_1_us)
 performance::check_heteroscedasticity(Model_1_us)
@@ -188,13 +151,18 @@ performance::rmse(Model_1_us)
 performance::r2(Model_1_us)
 
 #. Model 2
-Model_2_us <- lmer(lnwtp2 ~ lnyear  + local + prov + reg + cult  + forest +
-                     volunt + lumpsum + ce + nrev + lnq0 + (1 |studyid),
+Model_2_us <- lmer(lnwtp2 ~  lnq0  + (1 |studyid),
                    data  = df_us)
 
-ranova(Model_2_us) # mixed model not appropriate for the data: We model ordinary least squares
+Model_2b_us <- lmer(lnwtp2 ~  lnq0 + lninc + prov + reg + cult + volunt + lumpsum +                        (1 |studyid), data  = df_us)
 
-summary(Model_2_us)
+Model_2c_us <- lmer(lnwtp2 ~ lnq0 + lnq_change + lnyear  + local + prov + reg + cult  + forest +
+                      volunt + lumpsum + ce + (1 |studyid),
+                    data  = df_us)
+
+ranova(Model_2b_us) # mixed model not appropriate for the data: We model ordinary least squares
+
+summary(Model_2b_us)
 performance::check_collinearity(Model_2_us)
 performance::check_heteroscedasticity(Model_2_us)
 performance::icc(Model_1_us)
@@ -244,8 +212,8 @@ stargazer(Model_2_us_ols, Model_2b_us_ols, Model_2c_us_ols,
           style = "qje",
           single.row = TRUE)
 
-performance::performance_aic(Model_1c_us_ols)
-performance::performance_aic(Model_2c_us_ols)
+performance::performance_aic(Model_1_us_ols)
+performance::performance_aic(Model_2_us_ols)
 
 
 #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<bayesian>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
