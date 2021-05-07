@@ -10,8 +10,7 @@ if (!require(pacman)) {
 p_load(tidyverse, dplyr, summarytools, gtsummary)
 
 df_sum <- df %>%
-	dplyr::select(lnwtp, lnyear, local, prov, reg, cult, lninc, forest, volunt,
-		   lumpsum, ce, nrev, lnq_change, us) 
+	dplyr::select(lnwtp, wtp_2017, lnyear, lnq0, lnq_change, us, local, prov, reg, cult, lninc, forest, volunt, lumpsum, ce, nrev) 
 #Summary Stats for whole data
 sum_whole <-  df_sum %>% descr(stats = "common") %>% tb()
 
@@ -19,8 +18,8 @@ sum_whole <-  df_sum %>% descr(stats = "common") %>% tb()
 grouped_sum <- df_sum %>% group_by(us) %>% descr(stats = "common") %>% tb()
 
 #saving data
-write_csv(sum_whole, "output/tables/sum_whole_23_3_21.csv")
-write_csv(grouped_sum, "output/tables/grouped__23_3_21.csv")
+write_csv(sum_whole, "output/sum_whole_5_5_21.csv")
+write_csv(grouped_sum, "output/grouped_5_5_21.csv")
 
 
 #plot lnwtp vrs lnacres 

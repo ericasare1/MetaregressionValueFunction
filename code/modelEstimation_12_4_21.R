@@ -107,7 +107,7 @@ Model_2 <- lmer(lnwtp2 ~  lnq0 +
 Model_2b <- lmer(lnwtp2 ~  lnq0 + us + prov + reg + cult + volunt + lumpsum + 
                    (1 |studyid), data  = df) #lninc dropped cos of multicollinearity
 summary(Model_2b)
-ranova(Model_2) 
+ranova(Model_2c) 
 
 performance::performance_aic(Model_2c)
 
@@ -138,13 +138,13 @@ df_us <- df %>% filter(us ==1)
 Model_1_us <- lmer(lnwtp ~  lnq0 + lnq_change + (1 |studyid),
                    data  = df_us)
 
-Model_1b_us <- lmer(lnwtp ~  lnq0 + lnq_change + lninc + prov + reg + cult + volunt + lumpsum +                        (1 |studyid), data  = df_us)
+Model_1b_us <- lmer(lnwtp ~  lnq0 + lnq_change + prov + reg + cult + volunt + lumpsum +                        (1 |studyid), data  = df_us)
 
 Model_1c_us <- lmer(lnwtp ~ lnq0 + lnq_change + lnyear  + local + prov + reg + cult  + forest +
                      volunt + lumpsum + ce + (1 |studyid),
                    data  = df_us)
-ranova(Model_1b_us) 
-summary(Model_1c_us)
+ranova(Model_1c_us) 
+summary(Model_1b_us)
 performance::check_collinearity(Model_1_us)
 performance::check_heteroscedasticity(Model_1_us)
 performance::rmse(Model_1_us)
@@ -154,9 +154,9 @@ performance::r2(Model_1_us)
 Model_2_us <- lmer(lnwtp2 ~  lnq0  + (1 |studyid),
                    data  = df_us)
 
-Model_2b_us <- lmer(lnwtp2 ~  lnq0 + lninc + prov + reg + cult + volunt + lumpsum +                        (1 |studyid), data  = df_us)
+Model_2b_us <- lmer(lnwtp2 ~  lnq0 + prov + reg + cult + volunt + lumpsum +                        (1 |studyid), data  = df_us)
 
-Model_2c_us <- lmer(lnwtp2 ~ lnq0 + lnq_change + lnyear  + local + prov + reg + cult  + forest +
+Model_2c_us <- lmer(lnwtp2 ~ lnq0 + lnyear  + local + prov + reg + cult  + forest +
                       volunt + lumpsum + ce + (1 |studyid),
                     data  = df_us)
 
@@ -165,56 +165,9 @@ ranova(Model_2b_us) # mixed model not appropriate for the data: We model ordinar
 summary(Model_2b_us)
 performance::check_collinearity(Model_2_us)
 performance::check_heteroscedasticity(Model_2_us)
-performance::icc(Model_1_us)
-performance::r2(Model_2_us)
 
-#OLS
-#. Model 1
-Model_1c_us_ols <- lm(lnwtp ~ lnyear  + local + prov + reg + cult  + forest + lninc +
-                     volunt + lumpsum + ce + lnq0 + lnq_change,
-                   data  = df_us)
-
-Model_1_us_ols <- lm(lnwtp ~  lnq0 + lnq_change,
-                    data  = df_us)
-
-Model_1b_us_ols <- lm(lnwtp ~  lnq0 + lnq_change + prov + reg + cult + volunt + lumpsum,
-                    data  = df_us)
-
-summary(Model_1_us_ols)
-summary(Model_1b_us_ols)
-summary(Model_1c_us_ols)
-
-performance::check_heteroscedasticity(Model_1c_us_ols)
-
-stargazer(Model_1_us_ols, Model_1b_us_ols, Model_1c_us_ols,
-          type = "html",
-          out="output/model1-Us_models.doc",
-          style = "qje",
-          single.row = TRUE)
-
-#. Model 2
-Model_2c_us_ols <- lm(lnwtp2 ~ lnyear  + local + prov + reg + cult  + forest +
-                     volunt + lumpsum + ce + nrev + lnq0,
-                   data  = df_us)
-
-Model_2_us_ols <- lm(lnwtp2 ~  lnq0,
-                      data  = df_us)
-
-Model_2b_us_ols <- lm(lnwtp2 ~  lnq0 + lninc + prov + reg + cult + volunt + lumpsum,
-                      data  = df_us)
-summary(Model_2_us_ols)
-summary(Model_2b_us_ols)
-summary(Model_2c_us_ols)
-
-stargazer(Model_2_us_ols, Model_2b_us_ols, Model_2c_us_ols,
-          type = "html",
-          out="output/model2-Us_models.doc",
-          style = "qje",
-          single.row = TRUE)
-
-performance::performance_aic(Model_1_us_ols)
-performance::performance_aic(Model_2_us_ols)
-
+performance::performance_aic(Model_1b_us)
+performance::performance_aic(Model_2b_us)
 
 #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<bayesian>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 priors<-c(set_prior("normal(0,10)", class="b"),#prior for the beta's
