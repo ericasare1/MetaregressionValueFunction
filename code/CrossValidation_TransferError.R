@@ -47,7 +47,7 @@ for(i in 1:10){
 
 temp <- temp %>% rename(MAE = MSE) %>% dplyr::select(RMSE, MAE)
 
-mvte_uscan_uscantestdata <- temp %>% gather(., RMSE, MAE ,key ="Metric",value = "Value") %>% 
+temp %>% gather(., RMSE, MAE ,key ="Metric",value = "Value") %>% 
   ggplot(aes(x=Metric,y=Value,fill=Metric)) + 
   geom_boxplot() +
   coord_flip() +
@@ -112,8 +112,12 @@ nrow(test_can)
 # generating testing dataset
 train_can <- df_can[-random_sample_can, ] %>%
   mutate(meanlnwtp = mean(lnwtp))
-ncol(train_can)
-ncol(df_us)
+
+df_us <- df_us %>%
+  mutate(Country = ifelse(us==1, "US", "CANADA"))
+
+colnames(train_can)
+colnames(df_us)
 
 df1 <- rbind(train_can, df_us)
 
@@ -222,11 +226,13 @@ temp_us <- df_us %>%
 for(i in 1:10){
   train_us =temp_us[fold_us$subsets[fold_us$which != i], ]  #set the first n-1 dataset for training
   test =temp_us[fold_us$subsets[fold_us$which == i], ]  # set first 1/1oth dataset for test
-  mod_uscan = lm(lnwtp ~  lnq0 + lnq_change + prov + reg + cult + volunt + lumpsum,
-                 data= train_us)
-  newpred <- data.frame(fit = predict(mod_uscan, test))
-  true = data.frame(original = test$lnwtp) #find the original true dependent var from testdata
-  error = (true$original - newpred$fit) #deviations of true from predicted dependent variable
+  mod_uscan = lmer(lnwtp ~  lnq0 + lnq_change + prov + reg + cult + volunt + lumpsum +                        (1 |studyid),data= train_us)
+  newpred <- data.frame((predictInterval(merMod = mod_uscan, newdata = test,
+                                         level = 0.95, n.sims = 1000,
+                                         stat = "median", type="linear.prediction",
+                                         include.resid.var = TRUE)))
+  true = test$lnwtp #find the original true dependent var from testdata
+  error= (true - newpred$fit) #deviations of true from predicted dependent variable
   #different measures of model fit
   rmse=sqrt(mean(error^2)) 
   mae=mean(abs(error))
@@ -261,11 +267,13 @@ temp_us1 <- df_us %>%
 for(i in 1:10){
   train_us =temp_us1[fold_us$subsets[fold_us$which != i], ]  #set the first n-1 dataset for training
   test =test_can  # set first 1/1oth dataset for test
-  mod_uscan = lm(lnwtp ~  lnq0 + lnq_change + prov + reg + cult + volunt + lumpsum,
-                 data= train_us)
-  newpred <- predict(mod_uscan, test)
+  mod_uscan = lmer(lnwtp ~  lnq0 + lnq_change + prov + reg + cult + volunt + lumpsum +                        (1 |studyid),data= train_us)
+  newpred <- data.frame((predictInterval(merMod = mod_uscan, newdata = test,
+                                         level = 0.95, n.sims = 1000,
+                                         stat = "median", type="linear.prediction",
+                                         include.resid.var = TRUE)))
   true = test$meanlnwtp #find the original true dependent var from testdata
-  error = (true - newpred) #deviations of true from predicted dependent variable
+  error= (true - newpred$fit) #deviations of true from predicted dependent variable
   #different measures of model fit
   rmse=sqrt(mean(error^2)) 
   mae=mean(abs(error))
