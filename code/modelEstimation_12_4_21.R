@@ -6,7 +6,7 @@ if (!require(pacman)) {
 	library(pacman)}
 
 # Load Packages
-p_load(sjPlot, tableone, stargazer, broom, tidyverse, lme4, car, MASS, WeMix, metafor, merTools,  brms, rstanarm, rstan, sjstats, lmerTest, caret)
+p_load(sjPlot, tableone, stargazer, broom, tidyverse, lme4, car, MASS, WeMix, metafor, merTools,  brms, rstanarm, rstan, sjstats, lmerTest, caret, gridExtra)
 
 # Import data
 #-----------------------------------------------
@@ -35,7 +35,6 @@ df_cor <- df %>%
   dplyr::select(q0, q1, lnyear, local, prov, reg, cult, lninc, forest, 
                 volunt, lumpsum, ce, nrev, median, lnq0, lnq_change, us)
 
-
 #----------------------------------------------Data Exploration------------------------
 #A. checking the distribution of dependent variable
 qqp(df$lnwtp, "norm") # 'QQP' gives the Quantile-Quantile Plot to compare the empirical
@@ -52,12 +51,7 @@ boxplot(df$lnwtp)
 
 #a)....Checking for multicollinearity with correlation map: Will use VIF to formally test it
 #1. Correlation matrix
-cormat <- round(cor(as.matrix(df_cor),2))
-highlyCorrelated <- findCorrelation(cor(as.matrix(df_cor)), cutoff=0.7, verbose = FALSE, names = T)
-cormat <- cormat %>% filter(index == 19)
-#highlyCorrelated_pro <- findCorrelation(cor(as.matrix(df_cor_prov)), cutoff= 0.7, verbose = FALSE, names = T)
-print(highlyCorrelated)
-head(cormat)
+cormat <- cor(as.matrix(df_cor))
 #Reshape above matrix
 library(reshape2)
 melted_cormat <- melt(cormat)
@@ -66,29 +60,37 @@ head(melted_cormat)
 ggplot(data = melted_cormat, aes(x=Var1, y=Var2, fill=value)) + 
   geom_tile()
 
-#lmtest::bptest(lm_restricted)  # Breusch-Pagan test
-#-------------------Model Estimation : Results of Exploratory Exercise looks good to me
+#<<<<<<<<<<<<<<<<<<Model Estimations <<<<<<<<<<<<
+#Model 1: dep var is lnwtp and relevant independent variables are: lnqo and lnq_change
 
-#Model 1: dep var is lnwtp and rel ind vars: lnqo and lnq_change
+Model_1 <- lmer(lnwtp ~  lnq0 + lnq_change + 
+                  (1 |studyid), data  = df)
+
+Model_1b <- lmer(lnwtp ~  lnq0 + lnq_change + us + prov + reg + cult + volunt + lumpsum +
+                   (1 |studyid), data  = df)
+
 Model_1c <- lmer(lnwtp ~ lnq0 + lnq_change + lnyear  + local + us + prov + reg + 
                    cult + lninc + forest + volunt + lumpsum + ce + nrev +
 					       (1 |studyid), data  = df)
 
-Model_1b <- lmer(lnwtp ~  lnq0 + lnq_change + us + prov + reg + cult + volunt + lumpsum +
-                  (1 |studyid), data  = df)
-
-Model_1 <- lmer(lnwtp ~  lnq0 + lnq_change + 
-                   (1 |studyid), data  = df)
 summary(Model_1b)
+#checking if the random intercenpt model is appropriate for the data
 ranova(Model_1) 
+ranova(Model_1b) 
+ranova(Model_c) 
+# Calculating AIC
+performance::performance_aic(Model_1)
+performance::performance_aic(Model_1b)
 performance::performance_aic(Model_1c)
+#Other post-estimation results
+performance::check_collinearity(Model_1)
+performance::check_heteroscedasticity(Model_1)
 performance::r2(Model_1)
 
-#US-Canada model summary results
+# Preparing to save model results in word
 class(Model_1) <- "lmerMod"
 class(Model_1b) <- "lmerMod"
 class(Model_1c) <- "lmerMod"
-
 
 stargazer(Model_1, Model_1b, Model_1c,
           type = "html",
@@ -96,22 +98,26 @@ stargazer(Model_1, Model_1b, Model_1c,
           style = "qje",
           single.row = TRUE)
 
-#Model 2: dep var is lnwtp2 and rel ind vars: lnqo
-Model_2c <- lmer(lnwtp2 ~ lnq0 + lnyear + local + us + prov + reg + cult + forest + 
-                  volunt + lumpsum + ce + nrev +
-                  (1 |studyid), data  = df) #lninc dropped cos of multicollinearity
-
+#<<<<<<<Model 2: dependent variable is lnwtp2 and relevant independent vars: lnqo
 Model_2 <- lmer(lnwtp2 ~  lnq0 + 
                   (1 |studyid), data  = df) #lninc dropped cos of multicollinearity
 
 Model_2b <- lmer(lnwtp2 ~  lnq0 + us + prov + reg + cult + volunt + lumpsum + 
                    (1 |studyid), data  = df) #lninc dropped cos of multicollinearity
+
+Model_2c <- lmer(lnwtp2 ~ lnq0 + lnyear + local + us + prov + reg + cult + forest + 
+                   volunt + lumpsum + ce + nrev +
+                   (1 |studyid), data  = df) #lninc dropped cos of multicollinearity
+
+#Postestimation results
 summary(Model_2b)
 ranova(Model_2c) 
-
 performance::performance_aic(Model_2c)
+performance::check_collinearity(Model_1_us)
+performance::check_heteroscedasticity(Model_1_us)
+performance::r2(Model_2c)
 
-#US-Canada model summary results
+#Saving results in word
 class(Model_2) <- "lmerMod"
 class(Model_2b) <- "lmerMod"
 class(Model_2c) <- "lmerMod"
@@ -123,107 +129,69 @@ stargazer(Model_2, Model_2b, Model_2c,
           style = "qje",
           single.row = TRUE)
 
-#Model Diagnostics
-#checking if the random coefficient model is really significant
-
-#Inter Class Correlation
-performance::performance_aic(Model_1c) 
-performance::performance_aic(Model_2c) 
-
-#----------------US study only models--------------------
+#---------------- --------------US study only models--------------------
 df_us <- df %>% filter(us ==1)
-#lnq_change + us + lninc + prov + reg + cult + volunt + lumpsum +
-#. Model 1
 
+#Model 1 as the one before but this time using the US only data
 Model_1_us <- lmer(lnwtp ~  lnq0 + lnq_change + (1 |studyid),
                    data  = df_us)
 
-Model_1b_us <- lmer(lnwtp ~  lnq0 + lnq_change + prov + reg + cult + volunt + lumpsum +                        (1 |studyid), data  = df_us)
+Model_1b_us <- lmer(lnwtp ~  lnq0 + lnq_change + prov + reg + cult + 
+                      volunt + lumpsum +  (1 |studyid), data  = df_us)
 
 Model_1c_us <- lmer(lnwtp ~ lnq0 + lnq_change + lnyear  + local + prov + reg + cult  + forest +
                      volunt + lumpsum + ce + (1 |studyid),
                    data  = df_us)
+
+#Post Estimation results
+summary(Model_1c_us)
 ranova(Model_1c_us) 
-summary(Model_1b_us)
 performance::check_collinearity(Model_1_us)
 performance::check_heteroscedasticity(Model_1_us)
-performance::rmse(Model_1_us)
-performance::r2(Model_1_us)
+performance::r2(Model_2c)
 
-#. Model 2
+#US-Canada model summary results
+class(Model_1_us) <- "lmerMod"
+class(Model_1b_us) <- "lmerMod"
+class(Model_1c_us) <- "lmerMod"
+
+
+stargazer(Model_1_us, Model_1b_us,Model_1c_us,
+          type = "html",
+          out="output/model1-Us-models.doc",
+          style = "qje",
+          single.row = TRUE)
+#. <<<<<<<<<<<<<<<<<<<<<<<<<<<Model 2
+##Model 2 as the one before but this time using the US only data
+
 Model_2_us <- lmer(lnwtp2 ~  lnq0  + (1 |studyid),
                    data  = df_us)
 
-Model_2b_us <- lmer(lnwtp2 ~  lnq0 + prov + reg + cult + volunt + lumpsum +                        (1 |studyid), data  = df_us)
+Model_2b_us <- lmer(lnwtp2 ~  lnq0 + prov + reg + cult + volunt + 
+                      lumpsum + (1 |studyid), data  = df_us)
 
 Model_2c_us <- lmer(lnwtp2 ~ lnq0 + lnyear  + local + prov + reg + cult  + forest +
                       volunt + lumpsum + ce + (1 |studyid),
                     data  = df_us)
 
-ranova(Model_2b_us) # mixed model not appropriate for the data: We model ordinary least squares
-
+#Post-estimation results
 summary(Model_2b_us)
+ranova(Model_2b_us) # mixed model not appropriate for the data: We model ordinary least squares
 performance::check_collinearity(Model_2_us)
 performance::check_heteroscedasticity(Model_2_us)
-
-performance::performance_aic(Model_1b_us)
 performance::performance_aic(Model_2b_us)
+performance::r2(Model_2b_us)
 
-#<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<bayesian>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-priors<-c(set_prior("normal(0,10)", class="b"),#prior for the beta's
-		 set_prior("inv_gamma(.5,.5)", class="sigma"))#prior for the residual std. deviation
-
-bayesian_mixed_rest = brm(
-	lnwtp ~ lnq_change + (1 | studyid), 
-	data  = df,
-	prior = priors,
-	cores = 4 
-)
-
-summary(bayesian_mixed_rest)
-
-#Full
-bayesian_mixed_full = brm(
-	lnwtp ~ lnyear  +
-		local + 
-		prov + reg + cult + lninc +
-		forest + 
-		volunt + lumpsum + ce + nrev + lnq0 + lnq_change + us + (1 | studyid), 
-	data  = df,
-	prior = priors,
-	cores = 4,
-	warmup = 1000, 
-	iter = 5000,
-	control = list(adapt_delta = 0.98))
-
-bayesian_mixed_full_us = brm(
-	lnwtp ~ lnyear  +
-		local + 
-		prov + reg + cult + lninc +
-		forest + 
-		volunt + lumpsum + ce + nrev + lnq0 + lnq_change + us + (1 | studyid), 
-	data  = df_us,
-	prior = priors,
-	cores = 4,
-	warmup = 1000, 
-	iter = 5000,
-	control = list(adapt_delta = 0.98))
-
-#Model Diasgnostics
-#model fit
-pp_check(bayesian_mixed_full)
-pp_check(bayesian_mixed_full_us)
-#covergence
-plot(bayesian_mixed_full)
-plot(bayesian_mixed_full_us)
+#Preparing to save results in word
+class(Model_2_us) <- "lmerMod"
+class(Model_2b_us) <- "lmerMod"
+class(Model_2c_us) <- "lmerMod"
 
 
-summary(bayesian_mixed_full)
-summary(bayesian_mixed_full_us)
+stargazer(Model_2_us, Model_2b_us,Model_2c_us,
+          type = "html",
+          out="output/model2-Us-models.doc",
+          style = "qje",
+          single.row = TRUE)
 
-#Model performance
-performance::performance_rmse(bayesian_mixed_full) #compyes 
-performance::performance_rmse(bayesian_mixed_full_us) #compyes 
-
-
-df_can %>% mutate(change = q1-q0) %>% dplyr::select(authors, wtp_2017, change) 
+#<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< End >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>

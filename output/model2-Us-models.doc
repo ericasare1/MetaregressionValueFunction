@@ -1,0 +1,22 @@
+
+<table style="text-align:center"><tr><td colspan="4" style="border-bottom: 1px solid black"></td></tr><tr><td style="text-align:left"></td><td colspan="3">lnwtp2</td></tr>
+<tr><td style="text-align:left"></td><td>(1)</td><td>(2)</td><td>(3)</td></tr>
+<tr><td colspan="4" style="border-bottom: 1px solid black"></td></tr><tr><td style="text-align:left">lnq0</td><td>-0.038 (0.133)</td><td>-0.064 (0.142)</td><td>-0.125 (0.140)</td></tr>
+<tr><td style="text-align:left">lnyear</td><td></td><td></td><td>-1.282 (0.888)</td></tr>
+<tr><td style="text-align:left">local</td><td></td><td></td><td>3.898<sup>***</sup> (1.350)</td></tr>
+<tr><td style="text-align:left">prov</td><td></td><td>-1.494 (1.141)</td><td>-2.572<sup>**</sup> (1.061)</td></tr>
+<tr><td style="text-align:left">reg</td><td></td><td>1.095 (1.170)</td><td>1.580 (1.027)</td></tr>
+<tr><td style="text-align:left">cult</td><td></td><td>-0.980 (1.351)</td><td>-2.282<sup>*</sup> (1.355)</td></tr>
+<tr><td style="text-align:left">forest</td><td></td><td></td><td>1.417<sup>***</sup> (0.537)</td></tr>
+<tr><td style="text-align:left">volunt</td><td></td><td>-1.041 (1.345)</td><td>-0.325 (1.152)</td></tr>
+<tr><td style="text-align:left">lumpsum</td><td></td><td>2.122<sup>*</sup> (1.090)</td><td>1.978<sup>**</sup> (1.006)</td></tr>
+<tr><td style="text-align:left">ce</td><td></td><td></td><td>0.146 (1.434)</td></tr>
+<tr><td style="text-align:left">Constant</td><td>-2.571<sup>*</sup> (1.312)</td><td>-2.250 (1.788)</td><td>-1.207 (2.775)</td></tr>
+<tr><td style="text-align:left"><em>N</em></td><td>23</td><td>23</td><td>23</td></tr>
+<tr><td style="text-align:left">Log Likelihood</td><td>-39.353</td><td>-30.823</td><td>-21.527</td></tr>
+<tr><td style="text-align:left">Akaike Inf. Crit.</td><td>86.706</td><td>79.647</td><td>69.053</td></tr>
+<tr><td style="text-align:left">Bayesian Inf. Crit.</td><td>91.248</td><td>89.866</td><td>83.814</td></tr>
+<tr><td colspan="4" style="border-bottom: 1px solid black"></td></tr><tr><td style="text-align:left"><em>Notes:</em></td><td colspan="3" style="text-align:right"><sup>***</sup>Significant at the 1 percent level.</td></tr>
+<tr><td style="text-align:left"></td><td colspan="3" style="text-align:right"><sup>**</sup>Significant at the 5 percent level.</td></tr>
+<tr><td style="text-align:left"></td><td colspan="3" style="text-align:right"><sup>*</sup>Significant at the 10 percent level.</td></tr>
+</table>
