@@ -8,6 +8,7 @@ if (!require(pacman)) {
 # Load Packages
 p_load(tidyverse, dplyr, summarytools, cansim)
 
+
 #  >>>>>>>>>>>>>>>>> Conversions <<<<<<<<<<<<<<<<<<<<<
 # Extracting consumer price index for Canada
 cpi_canada <- get_cansim(1810000401) %>%
@@ -36,28 +37,28 @@ lantz <- rel_cpi_can["2009", "rel_cpi"]
 rudd <- rel_cpi_can["2011", "rel_cpi"]
 he <- rel_cpi_can["2013", "rel_cpi"]
 vossler <- rel_cpi_can["2014", "rel_cpi"]
-dina <- rel_cpi_can["2013", "rel_cpi"]
+dina <- rel_cpi_can["2003", "rel_cpi"]
 
 #Converting the wtp estimates to 2017 Canadian prices (C$WTP/Household/Year)
-transformed_wtp <- us_canada %>%
-  dplyr::mutate(
-    rel_cpi = ifelse(authors == "us", us_study_relcpi, 0),
-    rel_cpi = ifelse(authors == "johnson_2016", johnson1_relcpi, rel_cpi),
-    rel_cpi = ifelse(authors == "johnson_2015", johnson2_relcpi, rel_cpi),
-    rel_cpi = ifelse(authors == "tkac_wtp", tkac, rel_cpi),
-    rel_cpi = ifelse(authors == "trenholm_wtp_30W"|authors == "trenholm_wtp_60W"|authors == "trenholm_wtp_30mAll"|
-                       authors == "trenholm_wtp_60mAll", trenholm, rel_cpi),
-    rel_cpi = ifelse(authors == "pattisson_wtp_2008l"|authors == "pattisson_wtp_80"|authors == "pattisson_wtp_83"|
-                       authors == "pattisson_wtp_89"|authors == "pattisson_wtp_100", pattisson, rel_cpi),
-    rel_cpi = ifelse(authors == "lantz_wtp1"|authors == "lantz_wtp2", lantz, rel_cpi),
-    rel_cpi = ifelse(authors == "rudd_wtp1"|authors == "rudd_wtp2", rudd, rel_cpi),
-    rel_cpi = ifelse(authors == "he_wtp_ce"|authors == "he_wtp_cv", he, rel_cpi),
-    rel_cpi = ifelse(authors == "vossler_wtp", vossler, rel_cpi),
-    wtp_2017 = rel_cpi * wtp_original,
-    lnwtp = log(wtp_2017)) 
+#transformed_wtp <- us_canada %>%
+ # dplyr::mutate(
+ #   rel_cpi = ifelse(authors == "us", us_study_relcpi, 0),
+ #   rel_cpi = ifelse(authors == "johnson_2016", johnson1_relcpi, rel_cpi),
+ #   rel_cpi = ifelse(authors == "johnson_2015", johnson2_relcpi, rel_cpi),
+  #  rel_cpi = ifelse(authors == "tkac_wtp", tkac, rel_cpi),
+ #   rel_cpi = ifelse(authors == "trenholm_wtp_30W"|authors == "trenholm_wtp_60W"|authors == "trenholm_wtp_30mAll"|
+         #              authors == "trenholm_wtp_60mAll", trenholm, rel_cpi),
+ #   rel_cpi = ifelse(authors == "pattisson_wtp_2008l"|authors == "pattisson_wtp_80"|authors == "pattisson_wtp_83"|
+                     #  authors == "pattisson_wtp_89"|authors == "pattisson_wtp_100", pattisson, rel_cpi),
+   # rel_cpi = ifelse(authors == "lantz_wtp1"|authors == "lantz_wtp2", lantz, rel_cpi),
+   # rel_cpi = ifelse(authors == "rudd_wtp1"|authors == "rudd_wtp2", rudd, rel_cpi),
+  #  rel_cpi = ifelse(authors == "he_wtp_ce"|authors == "he_wtp_cv", he, rel_cpi),
+  #  rel_cpi = ifelse(authors == "vossler_wtp", vossler, rel_cpi),
+  #  wtp_2017 = rel_cpi * wtp_original,
+  #  lnwtp = log(wtp_2017)) 
 
 #Willingness to pay values extracted from original Canadian studies (C$ at study year)
-tkac_wtp <- 146.98
+tkac_wtp <- 79.22
 trenholm_wtp_30W <- 31.56     #30m riparian buffer: woodlot
 trenholm_wtp_60W<- 19.38      #60m riparian buffer: woodlot
 trenholm_wtp_30mAll <- 24.7  #30m riparian buffer: all land types (woodlot, agric, residential)
@@ -67,7 +68,7 @@ pattisson_wtp_80 <- 301.65          # retention at 80% of 1968 level
 pattisson_wtp_83 <- 308.31          # retention at 83% of 1968 level
 pattisson_wtp_89 <- 321.46          # retention at 89% of 1968 level
 pattisson_wtp_100 <- 347.78         # retention at 100% of 1968 level
-lantz_wtp1 <- 0.3250*35 +  0.3467*222.2 +  0.3283*1060.7 # wetland retention
+lantz_wtp1 <- 0.3250*35 +  0.3467*222.2 +  0.3283*1060.7 # wetland retention 
 lantz_wtp2 <- 0.3250*36  +  0.3467*227.5 +  0.3283*1038   # wetland retention plus restoration of additional 1000acres
 rudd_wtp1 <- 11.6       # wetlands - some improvements
 rudd_wtp2 <- 23.44      # wetlands - large improvements
@@ -89,14 +90,15 @@ unique(inc_canada$`Economic family type`) #"Economic families"
 
 inc_canada1 <- inc_canada%>%
   dplyr::filter(GEO =="New Brunswick"|GEO =="Ontario" ,
-                `Income concept` == "Average total income",   the US
+                `Income concept` == "Average total income",
                 `Economic family type` == "Economic families and persons not in an economic family",
                 REF_DATE==2007|REF_DATE==2009|REF_DATE==2011|REF_DATE==2014) %>%
-  dplyr::select(REF_DATE, GEO, VALUE) %>% 
-  column_to_rownames("GEO")
+  dplyr::select(REF_DATE, GEO, VALUE)
+
+#%>% column_to_rownames("GEO")
 
 
-#Income
+ #Income
 trenholm_inc <- inc_canada1  %>% filter(REF_DATE==2007 & GEO == "New Brunswick") %>% 
   dplyr::select(VALUE) %>% pluck(1)
 lantz_inc <- inc_canada1  %>% filter(REF_DATE==2009 & GEO == "Ontario") %>% 
@@ -118,19 +120,19 @@ johnson_inc <- (100)^-1 * (5*(10000) + 7*(.5*(10000+19999)) + 18*(.5*(20000+3999
                              19*(.5*(40000+59999)) + 17*(.5*(60000+79999)) + 
                              13*(0.5*(80000+99000)) + 20*(0.5*(100000+249)) + 3*(250000))
 #creating income variable
-canada_data <- canada_data %>%
-  mutate(
-    income = ifelse(authors == "tkac_wtp", tkac_inc, 0),
-    income  = ifelse(authors == "trenholm_wtp_30W"|authors == "trenholm_wtp_60W"|authors == "trenholm_wtp_30mAll"|
-                       authors == "trenholm_wtp_60mAll", trenholm_inc, income),
-    income  = ifelse(authors == "pattisson_wtp_2008l"|authors == "pattisson_wtp_80"|authors == "pattisson_wtp_83"|
-                       authors == "pattisson_wtp_89"|authors == "pattisson_wtp_100", pattisson_inc, income),
-    income  = ifelse(authors == "lantz_wtp1"|authors == "lantz_wtp2", lantz_inc, income),
-    income  = ifelse(authors == "rudd_wtp1"|authors == "rudd_wtp2", rudd_inc, income),
-    income  = ifelse(authors == "he_wtp_ce"|authors == "he_wtp_cv", he_inc, income),
-    income  = ifelse(authors == "vossler_wtp", vossler_inc, income),
-    income  = ifelse(authors == "dina_wtp", dina_inc, income)
-  )
+#canada_data <- canada_data %>%
+  #mutate(
+  #  income = ifelse(authors == "tkac_wtp", tkac_inc, 0),
+   # income  = ifelse(authors == "trenholm_wtp_30W"|authors == "trenholm_wtp_60W"|authors == "trenholm_wtp_30mAll"|
+            #           authors == "trenholm_wtp_60mAll", trenholm_inc, income),
+    #income  = ifelse(authors == "pattisson_wtp_2008l"|authors == "pattisson_wtp_80"|authors == "pattisson_wtp_83"|
+             #          authors == "pattisson_wtp_89"|authors == "pattisson_wtp_100", pattisson_inc, income),
+ #   income  = ifelse(authors == "lantz_wtp1"|authors == "lantz_wtp2", lantz_inc, income),
+ #   income  = ifelse(authors == "rudd_wtp1"|authors == "rudd_wtp2", rudd_inc, income),
+ #   income  = ifelse(authors == "he_wtp_ce"|authors == "he_wtp_cv", he_inc, income),
+ #   income  = ifelse(authors == "vossler_wtp", vossler_inc, income),
+ #   income  = ifelse(authors == "dina_wtp", dina_inc, income)
+ # )
 
 
 #Constructing data.frame
@@ -190,7 +192,7 @@ canada_data <- data.frame(
     year_study = ifelse(authors == "dina_wtp", 2003, year_study),
     
     #freshwater
-    wlfresh = ifelse(authors == "rudd_wtp1"|authors == "rudd_wtp2", 1, 0),
+    wlfresh = ifelse(authors == "rudd_wtp1"|authors == "rudd_wtp2", 0, 1),
     
     #creating studyid to identify clusters of studies
     studyid = ifelse(authors == "tkac_wtp", 126, 0),
@@ -204,8 +206,7 @@ canada_data <- data.frame(
     studyid = ifelse(authors == "vossler_wtp", 132, studyid),
     studyid = ifelse(authors == "dina_wtp", 133, studyid),
     
-    #Creating binary variable = 1 if water is freshwater
-    wlfresh =  1,
+
     #log of year; oldest year is 1991 in the US data set
     lnyear = ifelse(authors == "tkac_wtp", log(2001 - 1991+1), 0),
     lnyear = ifelse(authors == "trenholm_wtp_30W"|authors == "trenholm_wtp_60W"|authors == "trenholm_wtp_30mAll"|
@@ -263,7 +264,7 @@ canada_data <- data.frame(
     cult = ifelse(authors == "rudd_wtp1"|authors == "rudd_wtp2", 1, cult),
     cult = ifelse(authors == "he_wtp_ce"|authors == "he_wtp_cv", 0, cult),
     cult = ifelse(authors == "vossler_wtp", 1, cult), 
-    cult = ifelse(authors == "dina_wtp", 0, cult), 
+    cult = ifelse(authors == "dina_wtp", 1, cult), 
     
     # forest, binary = 1 if wetland is in forest landscape
     forest = ifelse(authors == "tkac_wtp", 0, 0),
@@ -289,15 +290,14 @@ canada_data <- data.frame(
     q0 = ifelse(authors == "pattisson_wtp_83", 949184, q0),
     q0 = ifelse(authors =="pattisson_wtp_89", 949184, q0),
     q0 = ifelse(authors == "pattisson_wtp_100", 949184, q0),
-    q0 = ifelse(authors == "lantz_wtp1", 14520, q0), 
-    q0 = ifelse(authors == "lantz_wtp2", 14520, q0), 
+    q0 = ifelse(authors == "lantz_wtp1", 11997, q0), #11,997acres of wetlands would would remain by 2020
+    q0 = ifelse(authors == "lantz_wtp2", 11997, q0), #11,997acres of wetlands would would remain by 2020
     q0 = ifelse(authors == "rudd_wtp1", 1307159, q0),
     q0 = ifelse(authors == "rudd_wtp2", 1307159, q0),
     q0 = ifelse(authors == "he_wtp_ce", 988422, q0),
     q0 = ifelse(authors == "he_wtp_cv", 988422, q0),
-    q0 = ifelse(authors == "vossler_wtp", 0.14*1200000, q0), 
+    q0 = ifelse(authors == "vossler_wtp", 0.14*2.9653E+8, q0), #out of a total of 1.2mill km2 society is mandated to retain 14%: 1.2mill km2 = 2.9653E+8
     q0 = ifelse(authors == "dina_wtp", 0, q0), 
-    
     
     # policy acreage
     q1 = ifelse(authors == "tkac_wtp", 8400, 0),
@@ -310,16 +310,15 @@ canada_data <- data.frame(
     q1 = ifelse(authors == "pattisson_wtp_83", 1125461, q1),
     q1 = ifelse(authors =="pattisson_wtp_89", 1206820, q1),
     q1 = ifelse(authors == "pattisson_wtp_100", 1355977, q1),
-    q1 = ifelse(authors == "lantz_wtp1", 17520, q1), 
-    q1 = ifelse(authors == "lantz_wtp2", 18520, q1), 
-    q1 = ifelse(authors == "rudd_wtp1", 1413412, q1),
-    q1 = ifelse(authors == "rudd_wtp2", 1413412, q1),
+    q1 = ifelse(authors == "lantz_wtp1", 17520, q1), #17520 acres of wetlands would would remain by 2020
+    q1 = ifelse(authors == "lantz_wtp2", 18520, q1), #  #17520 acres of wetlands would would remain by 2020 + 1000 acres restored wetlands
+    q1 = ifelse(authors == "rudd_wtp1", 1413400, q1),
+    q1 = ifelse(authors == "rudd_wtp2", 1616100, q1),
     q1 = ifelse(authors == "he_wtp_ce", 1976843, q1),
     q1 = ifelse(authors == "he_wtp_cv", 1976843, q1),
-    q1 = ifelse(authors == "vossler_wtp", 0.35*1200000, q1), 
+    q1 = ifelse(authors == "vossler_wtp", 0.35*2.9653E+8, q1), #conservation target of 35% (inspired by ecologist)
     q1 = ifelse(authors == "dina_wtp", 225000 * 2.471, q1), 
-    
-    
+
     #volunt, binary = 1 if payment mechanism is voluntary
     volunt = 0,
     volunt = ifelse(authors == "tkac_wtp", 1, 0),
@@ -329,7 +328,7 @@ canada_data <- data.frame(
     
     #lumpsun, binary = 1 if payment frequecy is once
     lumpsum = 1,
-    lumpsum = ifelse(authors == "tkac_wtp", 0, 0),
+    lumpsum = ifelse(authors == "tkac_wtp", 1, 0),
     lumpsum = ifelse(authors == "lantz_wtp1"|authors == "lantz_wtp2", 0, lumpsum), 
     lumpsun = ifelse(authors == "vossler_wtp", 1, lumpsum), 
     lumpsun = ifelse(authors == "dina_wtp", 0, lumpsum), 
@@ -386,8 +385,7 @@ canada_data %>% View()
                                   #Impl. for survey design and welfare est.
 johnson_2016 <- 1.09 * (4000/47)    # wtp is 1.09 per 47 vegetated acres: 4000 acres 85% of original 4700 acres
 #Johnson, Feurt and Holland (2015). Ecosystem serv and riparian land management in the Merriland, Branch Brook and Little River Watershed
-johnson_2015 <- 0.044 * (200)    # wtp is 0.044 per 47 vegetated acres: 4000 acres 85% of original 4700 acres
-me
+johnson_2015 <- 0.044 * (200)    # wtp is 0.044 per 47 vegetated acres: 4000 acres 85% of original 4700 acresme
 # 2017 us canada exchange rate: https://www.bankofcanada.ca/rates/exchange/annual-average-exchange-rates/
 excrate_2017 = 1.3 
 
@@ -489,7 +487,7 @@ add_us_data %>% View()
 
 #Original US data (Klaus)
 us_data <- read_csv("data/metadata.csv") %>% filter(canada==0) %>% 
-  mutate(us = 1,
+  mutate(us = 1, 
          authors = "klaus",
          wtp_original = exp(lnwtp) * 1.3, # use exp to transform lnwtp and convert to C$ with 2017 us-can exc rate
          lninc = log(exp(lninc) * 1.3)) %>%  
@@ -515,6 +513,8 @@ us_canada <- canada_data %>%
   add_row(add_us_data) %>%
   add_row(us_data)
 
-us_canada %>% View() 
+us_canada %>% filter(wlfresh==1) %>% View() 
+nrow(us_canada)
 
 write.csv(us_canada, "data/Data_for_analysis_5_5_21.csv")  # Final US-Canada data for estimations.
+

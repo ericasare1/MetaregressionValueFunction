@@ -10,9 +10,11 @@ p_load(sjPlot, tableone, stargazer, broom, tidyverse, lme4, car, MASS, WeMix, me
 
 # Import data
 #-----------------------------------------------
-df <- read_csv("data/Data_for_analysis_11_4_21.csv")
-str(df) #check the structure of variables
+df <- read_csv("data/Data_for_analysis_5_5_21.csv")
+df <- df %>% dplyr::select(-c(X1, lnwtp)) %>% mutate(lnwtp = log(wtp_original))
 df %>% View()
+str(df) #check the structure of variables
+df %>% dplyr::select(authors, wlfresh, q0, q1) %>% View()
 #function to scale variables to be between 0 and 1
 normalized <- function(x) {
   (x- min(x))/(max(x) - min(x))
@@ -27,9 +29,10 @@ df <- df %>%
   ) 
 
 df %>% View()
-df_us <- df %>% filter(us == 1) %>% nrow() # number of observation of us studies
-df_can <- df %>% filter(us == 0) %>% nrow() # number of observation of canadian studies
-
+df_us <- df %>% filter(us == 1) # number of observation of us studies
+df_can <- df %>% filter(us == 0) # number of observation of canadian studies
+nrow(df_us)
+nrow(df_can)
 #dataframe to create correlation map from more relevant model variables
 df_cor <- df %>%  
   dplyr::select(q0, q1, lnyear, local, prov, reg, cult, lninc, forest, 
@@ -47,7 +50,7 @@ ggplot(df, aes(x= id_study, y = lnwtp, fill = as.character(us))) +
 	theme_bw(base_size = 14)
 
 #C. checking for outliers
-boxplot(df$lnwtp) 
+boxplot(df$lnwtp)  
 
 #a)....Checking for multicollinearity with correlation map: Will use VIF to formally test it
 #1. Correlation matrix
@@ -66,33 +69,44 @@ ggplot(data = melted_cormat, aes(x=Var1, y=Var2, fill=value)) +
 Model_1 <- lmer(lnwtp ~  lnq0 + lnq_change + 
                   (1 |studyid), data  = df)
 
-Model_1b <- lmer(lnwtp ~  lnq0 + lnq_change + us + prov + reg + cult + volunt + lumpsum +
+Model_1b <- lmer(lnwtp ~ lnq0 + lnq_change + forest + volunt + lumpsum + ce + nrev  +
                    (1 |studyid), data  = df)
 
 Model_1c <- lmer(lnwtp ~ lnq0 + lnq_change + lnyear  + local + us + prov + reg + 
                    cult + lninc + forest + volunt + lumpsum + ce + nrev +
 					       (1 |studyid), data  = df)
 
-summary(Model_1b)
+
 #checking if the random intercenpt model is appropriate for the data
 ranova(Model_1) 
 ranova(Model_1b) 
-ranova(Model_c) 
+ranova(Model_1c) 
+
+#checking if the random intercenpt model is appropriate for the data
+performance::check_collinearity(Model_1b)
+performance::check_collinearity(Model_1c)
+
+summary(Model_1b)
+summary(Model_1c)
+
 # Calculating AIC
-performance::performance_aic(Model_1)
 performance::performance_aic(Model_1b)
 performance::performance_aic(Model_1c)
+
 #Other post-estimation results
-performance::check_collinearity(Model_1)
 performance::check_heteroscedasticity(Model_1)
+performance::check_heteroscedasticity(Model_1c)
+
 performance::r2(Model_1)
+performance::r2(Model_1c)
+
 
 # Preparing to save model results in word
 class(Model_1) <- "lmerMod"
 class(Model_1b) <- "lmerMod"
 class(Model_1c) <- "lmerMod"
 
-stargazer(Model_1, Model_1b, Model_1c,
+stargazer(Model_1, Model_1b, Model_1c, 
           type = "html",
           out="output/model1-Us-Canada_models.doc",
           style = "qje",
@@ -101,21 +115,36 @@ stargazer(Model_1, Model_1b, Model_1c,
 #<<<<<<<Model 2: dependent variable is lnwtp2 and relevant independent vars: lnqo
 Model_2 <- lmer(lnwtp2 ~  lnq0 + 
                   (1 |studyid), data  = df) #lninc dropped cos of multicollinearity
+Model_2b <- lmer(lnwtp2 ~ lnq0  + forest + volunt + lumpsum + ce + nrev  +
+                   (1 |studyid), data  = df)
 
-Model_2b <- lmer(lnwtp2 ~  lnq0 + us + prov + reg + cult + volunt + lumpsum + 
+Model_2c <- lmer(lnwtp2 ~ lnq0 + 
+                   lnyear  + local + us + prov + reg + 
+                   cult + lninc + forest + volunt + lumpsum + ce + nrev +
                    (1 |studyid), data  = df) #lninc dropped cos of multicollinearity
 
-Model_2c <- lmer(lnwtp2 ~ lnq0 + lnyear + local + us + prov + reg + cult + forest + 
-                   volunt + lumpsum + ce + nrev +
-                   (1 |studyid), data  = df) #lninc dropped cos of multicollinearity
-
-#Postestimation results
-summary(Model_2b)
+#checking if the random intercenpt model is appropriate for the data
+ranova(Model_2)
+ranova(Model_2b)
 ranova(Model_2c) 
+#checking if the random intercenpt model is appropriate for the data
+performance::check_collinearity(Model_2b) #VIF all below 10 so all good
+
+# Calculating AIC
+performance::performance_aic(Model_2)
 performance::performance_aic(Model_2c)
-performance::check_collinearity(Model_1_us)
-performance::check_heteroscedasticity(Model_1_us)
-performance::r2(Model_2c)
+
+#Other post-estimation results
+performance::check_heteroscedasticity(Model_2)
+performance::check_heteroscedasticity(Model_2c)
+
+#summary of resu1ts
+summary(Model_2)
+summary(Model_2c)
+
+
+performance::r2(Model_2)
+performance::r2(Model_2b)
 
 #Saving results in word
 class(Model_2) <- "lmerMod"
@@ -136,19 +165,43 @@ df_us <- df %>% filter(us ==1)
 Model_1_us <- lmer(lnwtp ~  lnq0 + lnq_change + (1 |studyid),
                    data  = df_us)
 
-Model_1b_us <- lmer(lnwtp ~  lnq0 + lnq_change + prov + reg + cult + 
-                      volunt + lumpsum +  (1 |studyid), data  = df_us)
+Model_1b_us <- lmer(lnwtp ~  lnq0 + lnq_change + prov + reg + cult + lninc + forest + 
+                       + volunt + lumpsum + (1 |studyid), data  = df_us)
 
-Model_1c_us <- lmer(lnwtp ~ lnq0 + lnq_change + lnyear  + local + prov + reg + cult  + forest +
-                     volunt + lumpsum + ce + (1 |studyid),
-                   data  = df_us)
-
-#Post Estimation results
+Model_1c_us <- lmer(lnwtp ~ lnq0 + lnq_change + lnyear  + local + prov + reg + 
+                   cult + lninc + forest + volunt + lumpsum + ce + nrev +
+                   (1 |studyid), data  = df_us)           
+                      #lnyear  + local + prov + reg + 
+                     # cult + lninc + 
+summary(Model_1_us)
 summary(Model_1c_us)
+summary(Model_1b_us)
+
+
+
+#Model_1c_us <- lmer(lnwtp ~  lnq0 + lnq_change + lnyear + local + prov + reg + cult + forest + lninc + lumpsum  + ce + nrev + (1 |studyid), data  = df_us)
+
+#checking if the random intercenpt model is appropriate for the data
+ranova(Model_1b_us) 
 ranova(Model_1c_us) 
-performance::check_collinearity(Model_1_us)
+#checking if the random intercenpt model is appropriate for the data
+performance::check_collinearity(Model_1c_us) #VIF all below 10 so all good
+
+# Calculating AIC
+performance::performance_aic(Model_1_us)
+performance::performance_aic(Model_1c_us)
+
+#Other post-estimation results
 performance::check_heteroscedasticity(Model_1_us)
-performance::r2(Model_2c)
+performance::check_heteroscedasticity(Model_1c_us)
+
+#summary of resu1ts
+summary(Model_1b_us)
+summary(Model_1c_us)
+
+
+performance::r2(Model_1b_us)
+performance::r2(Model_1c_us)
 
 #US-Canada model summary results
 class(Model_1_us) <- "lmerMod"
@@ -156,31 +209,46 @@ class(Model_1b_us) <- "lmerMod"
 class(Model_1c_us) <- "lmerMod"
 
 
-stargazer(Model_1_us, Model_1b_us,Model_1c_us,
+stargazer(Model_1_us, Model_1b_us, Model_1c_us,
           type = "html",
           out="output/model1-Us-models.doc",
           style = "qje",
           single.row = TRUE)
+
 #. <<<<<<<<<<<<<<<<<<<<<<<<<<<Model 2
 ##Model 2 as the one before but this time using the US only data
 
 Model_2_us <- lmer(lnwtp2 ~  lnq0  + (1 |studyid),
                    data  = df_us)
+Model_2b_us <- lmer(lnwtp2 ~  lnq0 + prov + reg + cult + lninc + forest + 
+                      + volunt + lumpsum + (1 |studyid), data  = df_us)
 
-Model_2b_us <- lmer(lnwtp2 ~  lnq0 + prov + reg + cult + volunt + 
-                      lumpsum + (1 |studyid), data  = df_us)
+Model_2c_us <- lmer(lnwtp2 ~  lnq0 + lnyear  + local + prov + reg + 
+                      cult + lninc + forest + volunt + lumpsum + ce + nrev  + (1 |studyid), data  = df_us)
 
-Model_2c_us <- lmer(lnwtp2 ~ lnq0 + lnyear  + local + prov + reg + cult  + forest +
-                      volunt + lumpsum + ce + (1 |studyid),
-                    data  = df_us)
+#Model_2c_us <- lmer(lnwtp2 ~ lnq0 + lnyear + local + prov + reg + cult + forest  + lumpsum  + ce + nrev + (1 |studyid),data  = df_us)
 
-#Post-estimation results
-summary(Model_2b_us)
-ranova(Model_2b_us) # mixed model not appropriate for the data: We model ordinary least squares
-performance::check_collinearity(Model_2_us)
+
+#checking if the random intercenpt model is appropriate for the data
+ranova(Model_2b_us) 
+ranova(Model_2c_us) 
+#checking if the random intercenpt model is appropriate for the data
+performance::check_collinearity(Model_2c_us) #VIF all below 10 so all good
+
+# Calculating AIC
+performance::performance_aic(Model_2_us)
+performance::performance_aic(Model_2c_us)
+
+#Other post-estimation results
 performance::check_heteroscedasticity(Model_2_us)
-performance::performance_aic(Model_2b_us)
-performance::r2(Model_2b_us)
+performance::check_heteroscedasticity(Model_2c_us)
+
+#summary of resu1ts
+summary(Model_2b_us)
+summary(Model_2c_us)
+
+performance::r2(Model_2_us)
+performance::r2(Model_2c_us)
 
 #Preparing to save results in word
 class(Model_2_us) <- "lmerMod"
@@ -188,7 +256,7 @@ class(Model_2b_us) <- "lmerMod"
 class(Model_2c_us) <- "lmerMod"
 
 
-stargazer(Model_2_us, Model_2b_us,Model_2c_us,
+stargazer(Model_2_us, Model_2b_us, Model_2c_us,
           type = "html",
           out="output/model2-Us-models.doc",
           style = "qje",
