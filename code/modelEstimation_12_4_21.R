@@ -7,7 +7,7 @@ if (!require(pacman)) {
 
 # Load Packages
 p_load(sjPlot, tableone, stargazer, broom, tidyverse, lme4, car, MASS, WeMix, metafor, merTools,  brms, rstanarm, rstan, sjstats, lmerTest, caret, gridExtra)
-
+library(lme4)
 # Import data
 #-----------------------------------------------
 df <- read_csv("data/Data_for_analysis_5_5_21.csv")
