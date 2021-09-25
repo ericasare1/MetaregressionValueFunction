@@ -95,6 +95,7 @@ inc_canada1 <- inc_canada%>%
                 REF_DATE==2007|REF_DATE==2009|REF_DATE==2011|REF_DATE==2014) %>%
   dplyr::select(REF_DATE, GEO, VALUE)
 
+view(inc_canada1)
 #%>% column_to_rownames("GEO")
 
 

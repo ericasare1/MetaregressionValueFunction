@@ -28,7 +28,7 @@ df <- df %>%
   Country = ifelse(us ==1, "US", "Canada")
 )
 df %>% ggplot(aes(x=lnq_change,y=lnwtp, color= Country)) + 
-  geom_point() +
+  geom_point(size=5,alpha = 1) +
   labs(
     x = "Log (Willingness to Pay)",
     y = "Log (Wetland Acreage Change)"
