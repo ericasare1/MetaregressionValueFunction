@@ -6,7 +6,7 @@ if (!require(pacman)) {
 	library(pacman)}
 
 # Load Packages
-p_load(sjPlot, tableone, stargazer, broom, tidyverse, lme4, car, MASS, WeMix, metafor, merTools,  brms, rstanarm, rstan, sjstats, lmerTest, caret, gridExtra)
+p_load(sjPlot, tableone, stargazer, broom, tidyverse, lme4, car, MASS, WeMix, metafor, merTools, lmerTest, caret, gridExtra)
 library(lme4)
 
 library(tidyverse)
@@ -221,7 +221,8 @@ stargazer(Model_1_us, Model_1b_us, Model_1c_us,
 
 #. <<<<<<<<<<<<<<<<<<<<<<<<<<<Model 2
 ##Model 2 as the one before but this time using the US only data
-
+library(lme4)
+library(lmerTest)
 Model_2_us <- lmer(lnwtp2 ~  lnq0  + (1 |studyid),
                    data  = df_us)
 Model_2b_us <- lmer(lnwtp2 ~  lnq0 + prov + reg + cult + lninc + forest + 
@@ -235,7 +236,9 @@ Model_2c_us <- lmer(lnwtp2 ~  lnq0 + lnyear  + local + prov + reg +
 
 #checking if the random intercenpt model is appropriate for the data
 ranova(Model_2b_us) 
-ranova(Model_2c_us) 
+ranova(Model_2c_us)
+ranova(Model_2_us) 
+
 #checking if the random intercenpt model is appropriate for the data
 performance::check_collinearity(Model_2c_us) #VIF all below 10 so all good
 

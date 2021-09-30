@@ -44,12 +44,15 @@ newpred <- data.frame(mod_us, newdata=test, allow.new.levels = T)
 write_csv(adding_up_pred, "output/addingup_full.csv")
 
 #Adding up: Model 2
-adding_up_pred_us <- data.frame((predictInterval(merMod = Model_1b_us, newdata = adding_up_testdata,
-                                                     level = 0.95, n.sims = 1000,
-                                                     stat = "median", type="linear.prediction",
-                                                     include.resid.var = T))) %>%
-  mutate(fit = fit * adding_up_testdata$lnq_change,
-         wtp = exp(fit)) 
+adding_up_pred_us <- data.frame(fit=predict(Model_1c_us, newdata = adding_up_testdata, allow.new.levels = T)) %>%
+  mutate(wtp = exp(fit)) 
 
 adding_up_pred_us %>% View()
 write_csv(adding_up_pred_us, "output/addingup_model_us.csv")
+
+
+
+#(predictInterval(merMod = Model_1c_us, newdata = adding_up_testdata,
+                # level = 0.95, n.sims = 1000,
+                # stat = "median", type="linear.prediction",
+               #  include.resid.var = T))

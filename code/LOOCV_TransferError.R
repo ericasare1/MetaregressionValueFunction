@@ -96,8 +96,9 @@ temp_full_us %>% View()
 for(i in 1:nrow(df_us)){
   train = temp_full_us[fold_us$subsets[fold_us$which != i], ]  #set the first n-1 dataset for training
   test = df_can1[fold_cantest$subsets[fold_cantest$which == i], ]  # set first 1/1oth dataset for test
-  mod_us = lmer(lnwtp ~ lnq0 + lnq_change + prov + reg + cult + lninc + forest + 
-                  + volunt + lumpsum + (1 |studyid),  data= train)
+  mod_us = lmer(lnwtp ~ lnq0 + lnq_change + lnyear  + local + prov + reg + 
+                  cult + lninc + forest + volunt + lumpsum + ce + nrev +
+                  (1 |studyid),  data= train)
   newpred <- data.frame(fit=predict(mod_us, newdata = test, allow.new.levels = T))
   true_mr = test$lnwtp #find the original true dependent var from testdata
   error_mr= (true_mr - newpred$fit) #deviations of true from predicted dependent variable
