@@ -20,7 +20,7 @@ adding_up_testdata <- adding_up_testdata %>%
          volunt = 1,
          nrev = 1,
          lninc = mean(df$lninc),
-         prov = 1,
+         prov = 1, 
          reg = 1,
          cult = 0,
          ce = 1,
