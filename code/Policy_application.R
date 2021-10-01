@@ -89,7 +89,7 @@ library(ggplot2)
 install.packages("ggrepel")
 library(ggrepel)
 
-policy_df %>% ggplot(aes(x=phjv_wtp, y = acre_change, label = phjv_loc)) + 
+policy_df %>% filter(acre_change < 11734) %>% ggplot(aes(x=phjv_wtp, y = acre_change, label = phjv_loc)) + 
   geom_point(size= 3, alpha = 1) +
   labs(
     x = "Total Willingness to Pay ($/household)",
@@ -107,10 +107,12 @@ policy_df %>% ggplot(aes(x=phjv_wtp, y = acre_change, label = phjv_loc)) +
   
 ggsave("output/policy_acres.png", width=11, height=8.5)
 
+poli <- policy_df %>% filter(acre_change < 11734)
 library(gtsummary)
 library(flextable)
+
 tbl_summary(
-  policy_df,
+  poli,
   type = all_continuous() ~ "continuous2",
   statistic = all_continuous() ~ c( "{mean} ({sd})", 
                                     "{min}, {max}"),
@@ -121,3 +123,7 @@ tbl_summary(
   modify_header(label = "**Variable**") %>% # update the column header
   as_flex_table() %>%
   save_as_docx(path = "output/policy_var.docx")
+
+
+
+
