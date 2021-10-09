@@ -93,6 +93,7 @@ temp_full_us <- df_us %>%
          RMSE_mv=rep(0,nrow(.)),
          author = rep("",nrow(df_us)))
 temp_full_us %>% View()
+
 for(i in 1:nrow(df_us)){
   train = temp_full_us[fold_us$subsets[fold_us$which != i], ]  #set the first n-1 dataset for training
   test = df_can1[fold_cantest$subsets[fold_cantest$which == i], ]  # set first 1/1oth dataset for test
