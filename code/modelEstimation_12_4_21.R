@@ -133,9 +133,10 @@ ranova(Model_2b)
 ranova(Model_2c) 
 #checking if the random intercenpt model is appropriate for the data
 performance::check_collinearity(Model_2b) #VIF all below 10 so all good
+performance::check_collinearity(Model_2c) #VIF all below 10 so all good
 
 # Calculating AIC
-performance::performance_aic(Model_2)
+performance::performance_aic(Model_2b)
 performance::performance_aic(Model_2c)
 
 #Other post-estimation results
@@ -143,11 +144,11 @@ performance::check_heteroscedasticity(Model_2)
 performance::check_heteroscedasticity(Model_2c)
 
 #summary of resu1ts
-summary(Model_2)
+summary(Model_2b)
 summary(Model_2c)
 
 
-performance::r2(Model_2)
+performance::r2(Model_2c)
 performance::r2(Model_2b)
 
 #Saving results in word
@@ -190,9 +191,10 @@ ranova(Model_1b_us)
 ranova(Model_1c_us) 
 #checking if the random intercenpt model is appropriate for the data
 performance::check_collinearity(Model_1c_us) #VIF all below 10 so all good
+performance::check_collinearity(Model_1b_us) #VIF all below 10 so all good
 
 # Calculating AIC
-performance::performance_aic(Model_1_us)
+performance::performance_aic(Model_1b_us)
 performance::performance_aic(Model_1c_us)
 
 #Other post-estimation results
@@ -243,7 +245,7 @@ ranova(Model_2_us)
 performance::check_collinearity(Model_2c_us) #VIF all below 10 so all good
 
 # Calculating AIC
-performance::performance_aic(Model_2_us)
+performance::performance_aic(Model_2b_us)
 performance::performance_aic(Model_2c_us)
 
 #Other post-estimation results
