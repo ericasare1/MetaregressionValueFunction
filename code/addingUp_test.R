@@ -39,16 +39,16 @@ adding_up_testdata %>% View()
 adding_up_pred <- data.frame(fit=predict(Model_1c, newdata = adding_up_testdata, allow.new.levels = T)) %>%
   mutate(wtp = exp(fit)) 
 adding_up_pred %>% View()
-newpred <- data.frame(mod_us, newdata=test, allow.new.levels = T)
+#newpred <- data.frame(mod_us, newdata=test, allow.new.levels = T)
 
-write_csv(adding_up_pred, "output/addingup_full.csv")
+write_csv(adding_up_pred, "output/addingup_full_10_09.csv")
 
 #Adding up: Model 2
 adding_up_pred_us <- data.frame(fit=predict(Model_1c_us, newdata = adding_up_testdata, allow.new.levels = T)) %>%
   mutate(wtp = exp(fit)) 
 
 adding_up_pred_us %>% View()
-write_csv(adding_up_pred_us, "output/addingup_model_us.csv")
+write_csv(adding_up_pred_us, "output/addingup_model_us_10_9.csv")
 
 
 
