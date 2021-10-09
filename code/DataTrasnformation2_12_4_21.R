@@ -193,7 +193,7 @@ canada_data <- data.frame(
     year_study = ifelse(authors == "dina_wtp", 2003, year_study),
     
     #freshwater
-    wlfresh = ifelse(authors == "rudd_wtp1"|authors == "rudd_wtp2", 0, 1),
+    wlfresh = 1,
     
     #creating studyid to identify clusters of studies
     studyid = ifelse(authors == "tkac_wtp", 126, 0),
