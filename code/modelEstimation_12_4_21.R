@@ -81,6 +81,8 @@ Model_1c <- lmer(lnwtp ~ lnq0 + lnq_change + lnyear  + local + us + prov + reg +
 					       (1 |studyid), data  = df)
 
 
+
+
 #checking if the random intercenpt model is appropriate for the data
 ranova(Model_1) 
 ranova(Model_1b) 

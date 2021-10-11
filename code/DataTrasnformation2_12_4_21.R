@@ -336,9 +336,7 @@ canada_data <- data.frame(
     
     #nrev, binary = 1 paper is peer-reviewed
     nrev = 1,
-    nrev = ifelse(authors == "tkac_wtp", 0, 0),
-    nrev = ifelse(authors == "lantz_wtp1"|authors == "lantz_wtp2", 1, nrev),
-    nrev = ifelse(authors == "vossler_wtp", 1, nrev), 
+    nrev = ifelse(authors == "tkac_wtp", 0, nrev),
     nrev = ifelse(authors == "dina_wtp", 0, nrev), 
     
     #median, binary = 1 if wtp is median value
