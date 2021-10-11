@@ -18,8 +18,8 @@ sum_whole <-  df_sum %>% descr(stats = "common") %>% tb()
 grouped_sum <- df_sum %>% group_by(us) %>% descr(stats = "common") %>% tb()
 grouped_sum %>% View()
 #saving data
-write_csv(sum_whole, "output/sum_whole_5_5_21.csv")
-write_csv(grouped_sum, "output/grouped_5_5_21.csv")
+write_csv(sum_whole, "output/sum_whole_10_11_21.csv")
+write_csv(grouped_sum, "output/grouped_10_11_21.csv")
 
 
 #plot lnwtp vrs lnacres 
