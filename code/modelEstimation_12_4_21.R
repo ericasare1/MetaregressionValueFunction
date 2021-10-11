@@ -6,11 +6,9 @@ if (!require(pacman)) {
 	library(pacman)}
 
 # Load Packages
-p_load(sjPlot, tableone, stargazer, broom, tidyverse, lme4, car, MASS, WeMix, metafor, merTools, lmerTest, caret, gridExtra)
-library(lme4)
+p_load(sjPlot, tableone, stargazer, broom, tidyverse, lme4, car, MASS, WeMix, metafor, lmerTest, caret, gridExtra)
 
-library(tidyverse)
-library(lme4)
+library(merTools)
 
 # Import data
 #-----------------------------------------------
@@ -35,7 +33,7 @@ df <- df %>%
 df %>% View()
 df_us <- df %>% filter(us == 1) # number of observation of us studies
 df_can <- df %>% filter(us == 0) # number of observation of canadian studies
-nrow(df_us)
+++++++++++++++++++++++++nrow(df_us)
 nrow(df_can)
 #dataframe to create correlation map from more relevant model variables
 df_cor <- df %>%  
@@ -76,8 +74,12 @@ Model_1 <- lmer(lnwtp ~  lnq0 + lnq_change +
 Model_1b <- lmer(lnwtp ~ lnq0 + lnq_change + forest + volunt + lumpsum + ce + nrev  +
                    (1 |studyid), data  = df)
 
-Model_1c <- lmer(lnwtp ~ lnq0 + lnq_change + lnyear  + local + us + prov + reg + 
-                   cult + lninc + forest + volunt + lumpsum + ce + nrev +
+Model_1c <- lmer(lnwtp ~ lnq0 + lnq_change + lnyear  + local + us + prov + reg + nrev +
+                   cult + lninc + forest + volunt + lumpsum + ce  +
+                   (1 |studyid), data  = df)
+
+Model_1d <- lmer(lnwtp ~ lnq0 + lnq_change + lnyear  + local + us + prov + reg + 
+                   cult + lninc + forest + volunt + lumpsum + ce  +
 					       (1 |studyid), data  = df)
 
 
@@ -91,30 +93,38 @@ ranova(Model_1c)
 #checking if the random intercenpt model is appropriate for the data
 performance::check_collinearity(Model_1b)
 performance::check_collinearity(Model_1c)
+performance::check_collinearity(Model_1d)
+
 
 summary(Model_1b)
 summary(Model_1c)
+summary(Model_1d)
+
 
 # Calculating AIC
 performance::performance_aic(Model_1b)
 performance::performance_aic(Model_1c)
+performance::performance_aic(Model_1d)
+
 
 #Other post-estimation results
 performance::check_heteroscedasticity(Model_1)
 performance::check_heteroscedasticity(Model_1c)
 
-performance::r2(Model_1)
+performance::r2(Model_1b)
 performance::r2(Model_1c)
+performance::r2(Model_1d)
 
 
 # Preparing to save model results in word
 class(Model_1) <- "lmerMod"
 class(Model_1b) <- "lmerMod"
 class(Model_1c) <- "lmerMod"
+class(Model_1d) <- "lmerMod"
 
-stargazer(Model_1, Model_1b, Model_1c, 
+stargazer(Model_1, Model_1b, Model_1c, Model_1d,
           type = "html",
-          out="output/model1-Us-Canada_models.doc",
+          out="output/model1-Us-Canada_new.doc",
           style = "qje",
           single.row = TRUE)
 
@@ -161,7 +171,7 @@ class(Model_2c) <- "lmerMod"
 
 stargazer(Model_2, Model_2b, Model_2c,
           type = "html",
-          out="output/model2-Us-Canada_models.doc",
+          out="output/model2-Us-Canada_new.doc",
           style = "qje",
           single.row = TRUE)
 
@@ -181,8 +191,8 @@ Model_1c_us <- lmer(lnwtp ~ lnq0 + lnq_change + lnyear  + local + prov + reg +
                       #lnyear  + local + prov + reg + 
                      # cult + lninc + 
 summary(Model_1_us)
-summary(Model_1c_us)
 summary(Model_1b_us)
+summary(Model_1c_us)
 
 
 
@@ -219,7 +229,7 @@ class(Model_1c_us) <- "lmerMod"
 
 stargazer(Model_1_us, Model_1b_us, Model_1c_us,
           type = "html",
-          out="output/model1-Us-models.doc",
+          out="output/model1-Us-new.doc",
           style = "qje",
           single.row = TRUE)
 
@@ -245,6 +255,7 @@ ranova(Model_2_us)
 
 #checking if the random intercenpt model is appropriate for the data
 performance::check_collinearity(Model_2c_us) #VIF all below 10 so all good
+performance::check_collinearity(Model_2b_us) #VIF all below 10 so all good
 
 # Calculating AIC
 performance::performance_aic(Model_2b_us)
@@ -269,7 +280,7 @@ class(Model_2c_us) <- "lmerMod"
 
 stargazer(Model_2_us, Model_2b_us, Model_2c_us,
           type = "html",
-          out="output/model2-Us-models.doc",
+          out="output/model2-Us-new.doc",
           style = "qje",
           single.row = TRUE)
 
