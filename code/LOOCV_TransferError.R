@@ -34,7 +34,7 @@ for(i in 1:nrow(df)){
   train = temp_full[fold$subsets[fold$which != i], ]  #set the first n-1 dataset for training
   test = temp_full[fold$subsets[fold$which == i], ]  # set first 1/10th dataset for test
   mod_uscan = lmer(lnwtp ~ lnq0 + lnq_change + lnyear  + local + us + prov + reg + 
-                     cult + lninc + forest + volunt + lumpsum + ce + nrev +
+                     cult + lninc + forest + volunt + lumpsum + ce +
                      (1 |studyid),  data= train)
   newpred <- data.frame(fit=predict(mod_uscan, newdata = test, allow.new.levels = T))
   true_mr = test$lnwtp #find the original true dependent var from testdata
@@ -67,9 +67,18 @@ temp_full_all %>% View()
 #transfer Error Summary Statistics for US-Canada combined data
 #a) Meta-regression
 mean(temp_full_all$RMSE_mr)
+sd(temp_full_all$RMSE_mr)
+min(temp_full_all$RMSE_mr)
+max(temp_full_all$RMSE_mr)
+median(temp_full_all$RMSE_mr)
 
 #b) Mean Value
 mean(temp_full_all$RMSE_mv)
+sd(temp_full_all$RMSE_mv)
+min(temp_full_all$RMSE_mv)
+max(temp_full_all$RMSE_mv)
+
+median(temp_full_all$RMSE_mv)
 
 
 #3. <<<<<<<<<<<<<<<<<<<<<<<Transfer Error --for the US only Model
@@ -133,9 +142,17 @@ temp_full_usall %>% View()
 #transfer Error Summary Statistics for US-Canada combined data
 #a) Meta-regression
 mean(temp_full_usall$RMSE_mr)
+sd(temp_full_usall$RMSE_mr)
+min(temp_full_usall$RMSE_mr)
+max(temp_full_usall$RMSE_mr)
+median(temp_full_usall$RMSE_mr)
 
 #b) Mean Value
-mean(temp_full_usall$RMSE_mv)  
+mean(temp_full_usall$RMSE_mv) 
+sd(temp_full_usall$RMSE_mv) 
+min(temp_full_usall$RMSE_mv)  
+max(temp_full_usall$RMSE_mv)  
+median(temp_full_usall$RMSE_mv)  
 
 #a) Meta-regression
 

@@ -1,24 +1,24 @@
 
 <table style="text-align:center"><tr><td colspan="4" style="border-bottom: 1px solid black"></td></tr><tr><td style="text-align:left"></td><td colspan="3">lnwtp2</td></tr>
 <tr><td style="text-align:left"></td><td>(1)</td><td>(2)</td><td>(3)</td></tr>
-<tr><td colspan="4" style="border-bottom: 1px solid black"></td></tr><tr><td style="text-align:left">lnq0</td><td>-0.098 (0.110)</td><td>0.038 (0.133)</td><td>-0.062 (0.067)</td></tr>
-<tr><td style="text-align:left">lnyear</td><td></td><td></td><td>-0.215 (0.168)</td></tr>
-<tr><td style="text-align:left">local</td><td></td><td></td><td>2.111<sup>***</sup> (0.797)</td></tr>
-<tr><td style="text-align:left">us</td><td></td><td></td><td>3.568<sup>***</sup> (0.633)</td></tr>
-<tr><td style="text-align:left">prov</td><td></td><td></td><td>-1.756<sup>***</sup> (0.678)</td></tr>
-<tr><td style="text-align:left">reg</td><td></td><td></td><td>1.557<sup>**</sup> (0.736)</td></tr>
-<tr><td style="text-align:left">cult</td><td></td><td></td><td>-2.126<sup>***</sup> (0.677)</td></tr>
-<tr><td style="text-align:left">lninc</td><td></td><td></td><td>3.156<sup>**</sup> (1.576)</td></tr>
-<tr><td style="text-align:left">forest</td><td></td><td>0.165 (0.579)</td><td>1.002<sup>**</sup> (0.461)</td></tr>
-<tr><td style="text-align:left">volunt</td><td></td><td>-10.401<sup>***</sup> (1.398)</td><td>0.276 (1.090)</td></tr>
-<tr><td style="text-align:left">lumpsum</td><td></td><td>5.765<sup>***</sup> (2.080)</td><td>1.686<sup>**</sup> (0.762)</td></tr>
-<tr><td style="text-align:left">ce</td><td></td><td>0.142 (0.645)</td><td>-0.250 (0.557)</td></tr>
-<tr><td style="text-align:left">nrev</td><td></td><td>-4.925<sup>***</sup> (1.038)</td><td>-0.187 (0.872)</td></tr>
-<tr><td style="text-align:left">Constant</td><td>-3.644<sup>***</sup> (1.167)</td><td>-1.043 (1.607)</td><td>-42.301<sup>**</sup> (17.577)</td></tr>
+<tr><td colspan="4" style="border-bottom: 1px solid black"></td></tr><tr><td style="text-align:left">lnq0</td><td>-0.099 (0.109)</td><td>0.042 (0.133)</td><td>-0.064 (0.068)</td></tr>
+<tr><td style="text-align:left">lnyear</td><td></td><td></td><td>-0.218 (0.169)</td></tr>
+<tr><td style="text-align:left">local</td><td></td><td></td><td>2.101<sup>***</sup> (0.807)</td></tr>
+<tr><td style="text-align:left">us</td><td></td><td></td><td>3.442<sup>***</sup> (0.641)</td></tr>
+<tr><td style="text-align:left">prov</td><td></td><td></td><td>-1.703<sup>**</sup> (0.687)</td></tr>
+<tr><td style="text-align:left">reg</td><td></td><td></td><td>1.583<sup>**</sup> (0.746)</td></tr>
+<tr><td style="text-align:left">cult</td><td></td><td></td><td>-2.188<sup>***</sup> (0.686)</td></tr>
+<tr><td style="text-align:left">lninc</td><td></td><td></td><td>3.198<sup>**</sup> (1.598)</td></tr>
+<tr><td style="text-align:left">forest</td><td></td><td>0.083 (0.590)</td><td>0.996<sup>**</sup> (0.463)</td></tr>
+<tr><td style="text-align:left">volunt</td><td></td><td>-10.018<sup>***</sup> (1.403)</td><td>0.270 (1.106)</td></tr>
+<tr><td style="text-align:left">lumpsum</td><td></td><td>5.668<sup>***</sup> (2.014)</td><td>1.732<sup>**</sup> (0.773)</td></tr>
+<tr><td style="text-align:left">ce</td><td></td><td>0.140 (0.657)</td><td>-0.244 (0.560)</td></tr>
+<tr><td style="text-align:left">nrev</td><td></td><td>-4.776<sup>***</sup> (1.043)</td><td>-0.242 (0.884)</td></tr>
+<tr><td style="text-align:left">Constant</td><td>-3.597<sup>***</sup> (1.158)</td><td>-1.162 (1.581)</td><td>-42.614<sup>**</sup> (17.827)</td></tr>
 <tr><td style="text-align:left"><em>N</em></td><td>43</td><td>43</td><td>43</td></tr>
-<tr><td style="text-align:left">Log Likelihood</td><td>-95.823</td><td>-78.399</td><td>-48.339</td></tr>
-<tr><td style="text-align:left">Akaike Inf. Crit.</td><td>199.646</td><td>174.798</td><td>128.678</td></tr>
-<tr><td style="text-align:left">Bayesian Inf. Crit.</td><td>206.691</td><td>190.649</td><td>156.857</td></tr>
+<tr><td style="text-align:left">Log Likelihood</td><td>-95.539</td><td>-78.323</td><td>-48.495</td></tr>
+<tr><td style="text-align:left">Akaike Inf. Crit.</td><td>199.079</td><td>174.646</td><td>128.990</td></tr>
+<tr><td style="text-align:left">Bayesian Inf. Crit.</td><td>206.124</td><td>190.497</td><td>157.169</td></tr>
 <tr><td colspan="4" style="border-bottom: 1px solid black"></td></tr><tr><td style="text-align:left"><em>Notes:</em></td><td colspan="3" style="text-align:right"><sup>***</sup>Significant at the 1 percent level.</td></tr>
 <tr><td style="text-align:left"></td><td colspan="3" style="text-align:right"><sup>**</sup>Significant at the 5 percent level.</td></tr>
 <tr><td style="text-align:left"></td><td colspan="3" style="text-align:right"><sup>*</sup>Significant at the 10 percent level.</td></tr>

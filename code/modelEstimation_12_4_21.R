@@ -13,7 +13,7 @@ library(merTools)
 # Import data
 #-----------------------------------------------
 df <- read_csv("data/Data_for_analysis_5_5_21.csv")
-df <- df %>% dplyr::select(-c(X1, lnwtp)) %>% mutate(lnwtp = log(wtp_original))
+df <- df %>% dplyr::select(-c(X1))
 df %>% View()
 str(df) #check the structure of variables
 df %>% dplyr::select(authors, wlfresh, q0, q1) %>% View()
@@ -87,8 +87,8 @@ Model_1d <- lmer(lnwtp ~ lnq0 + lnq_change + lnyear  + local + us + prov + reg +
 
 #checking if the random intercenpt model is appropriate for the data
 ranova(Model_1) 
-ranova(Model_1b) 
 ranova(Model_1c) 
+ranova(Model_1d) 
 
 #checking if the random intercenpt model is appropriate for the data
 performance::check_collinearity(Model_1b)
@@ -111,7 +111,7 @@ performance::performance_aic(Model_1d)
 performance::check_heteroscedasticity(Model_1)
 performance::check_heteroscedasticity(Model_1c)
 
-performance::r2(Model_1b)
+performance::r2(Model_1)
 performance::r2(Model_1c)
 performance::r2(Model_1d)
 
@@ -199,7 +199,7 @@ summary(Model_1c_us)
 #Model_1c_us <- lmer(lnwtp ~  lnq0 + lnq_change + lnyear + local + prov + reg + cult + forest + lninc + lumpsum  + ce + nrev + (1 |studyid), data  = df_us)
 
 #checking if the random intercenpt model is appropriate for the data
-ranova(Model_1b_us) 
+ranova(Model_1_us) 
 ranova(Model_1c_us) 
 #checking if the random intercenpt model is appropriate for the data
 performance::check_collinearity(Model_1c_us) #VIF all below 10 so all good

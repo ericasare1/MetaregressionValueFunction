@@ -36,19 +36,19 @@ adding_up_testdata <- adding_up_testdata %>%
 
 adding_up_testdata %>% View()
 #ading add Model 1 for the US-can model
-adding_up_pred <- data.frame(fit=predict(Model_1c, newdata = adding_up_testdata, allow.new.levels = T)) %>%
+adding_up_pred <- data.frame(fit=predict(Model_1d, newdata = adding_up_testdata, allow.new.levels = T)) %>%
   mutate(wtp = exp(fit)) 
 adding_up_pred %>% View()
 #newpred <- data.frame(mod_us, newdata=test, allow.new.levels = T)
 
-write_csv(adding_up_pred, "output/addingup_full_10_09.csv")
+write_csv(adding_up_pred, "output/addingup_full_11_10_21.csv")
 
 #Adding up: Model 2
 adding_up_pred_us <- data.frame(fit=predict(Model_1c_us, newdata = adding_up_testdata, allow.new.levels = T)) %>%
   mutate(wtp = exp(fit)) 
 
 adding_up_pred_us %>% View()
-write_csv(adding_up_pred_us, "output/addingup_model_us_10_9.csv")
+write_csv(adding_up_pred_us, "output/addingup_model_us_11_10_21.csv")
 
 
 

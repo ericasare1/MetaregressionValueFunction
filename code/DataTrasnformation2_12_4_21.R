@@ -416,6 +416,10 @@ add_us_data <- data.frame(
 add_us_data <- add_us_data %>% 
   dplyr::mutate(
     
+    wtp_2017 = ifelse(authors == "johnson_2016", wtp_original*johnson_2016_relcpi,1),
+    wtp_2017 = ifelse(authors == "johnson_2015", wtp_original*johnson_2015_relcpi,wtp_2017),
+    lnwtp = log( wtp_2017),
+    
     lninc = log(johnson_inc * 1.3 * johnson_2015_relcpi), #convert us income to can$
     #year study was conducted
     year_study = ifelse(authors == "johnson_2016", 2016, 0),
@@ -488,31 +492,35 @@ add_us_data %>% View()
 us_data <- read_csv("data/metadata.csv") %>% filter(canada==0) %>% 
   mutate(us = 1, 
          authors = "klaus",
-         wtp_original = exp(lnwtp) * 1.3, # use exp to transform lnwtp and convert to C$ with 2017 us-can exc rate
+         wtp_original = exp(lnwtp), # use exp to transform lnwtp and convert to C$ with 2017 us-can exc rate
+         
+         wtp_2017 = wtp_original*us_study_relcpi *1.3,
+         
+         lnwtp = log( wtp_2017),
+         
          lninc = log(exp(lninc) * 1.3)) %>%  
   filter(canada == 0) %>%
-  dplyr::select(authors, studyid, lnwtp, wtp_original, lnyear, lninc, local, prov, 
+  dplyr::select(authors, studyid, lnwtp, wtp_original, wtp_2017, lnyear, lninc, local, prov, 
                 reg, cult, forest, q0, q1, volunt, lumpsum, ce, nrev, median, us, wlfresh)
 us_data %>% View()
 
 #selecting relevant columns for model estimation
 canada_data <- canada_data %>%
-  mutate(lnwtp = 0,
-         us = 0) %>%
-  dplyr::select(authors, studyid, lnwtp, wtp_original, lnyear, lninc, local, 
+  mutate(us = 0) %>%
+  dplyr::select(authors, studyid, lnwtp, wtp_original, wtp_2017, lnyear, lninc, local, 
          prov, reg, cult, forest, q0, q1, volunt, lumpsum, ce, nrev, median, us, wlfresh)
 
 add_us_data <- add_us_data %>% 
-  mutate(lnwtp = 0,
-         us=1) %>%
-  dplyr::select(authors, studyid, lnwtp, wtp_original, lnyear, lninc, local,
+  mutate(lnwtp = 0, us=1) %>%
+  dplyr::select(authors, studyid, lnwtp, wtp_original, wtp_2017, lnyear, lninc, local,
          prov, reg, cult, forest, q0, q1, volunt, lumpsum, ce, nrev, median, us, wlfresh)
 
 us_canada <- canada_data %>%
   add_row(add_us_data) %>%
-  add_row(us_data)
+  add_row(us_data) %>% mutate(lnwtp = log(wtp_2017))
 
-us_canada %>% filter(wlfresh==1) %>% View() 
+us_canada %>% filter(wlfresh==1) %>% View()
+                                            
 nrow(us_canada)
 
 write.csv(us_canada, "data/Data_for_analysis_5_5_21.csv")  # Final US-Canada data for estimations.
