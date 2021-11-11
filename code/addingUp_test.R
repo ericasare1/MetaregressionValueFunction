@@ -41,7 +41,7 @@ adding_up_pred <- data.frame(fit=predict(Model_1d, newdata = adding_up_testdata,
 adding_up_pred %>% View()
 #newpred <- data.frame(mod_us, newdata=test, allow.new.levels = T)
 
-write_csv(adding_up_pred, "output/addingup_full_11_10_21.csv")
+write_csv(adding_up_pred, "output/addingup_full_11_11_21.csv")
 
 #Adding up: Model 2
 adding_up_pred_us <- data.frame(fit=predict(Model_1c_us, newdata = adding_up_testdata, allow.new.levels = T)) %>%
