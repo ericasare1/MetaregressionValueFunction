@@ -17,10 +17,6 @@ df <- df %>% dplyr::select(-c(X1))
 df %>% View()
 str(df) #check the structure of variables
 df %>% dplyr::select(authors, wlfresh, q0, q1) %>% View()
-#function to scale variables to be between 0 and 1
-normalized <- function(x) {
-  (x- min(x))/(max(x) - min(x))
-}
 
 # Creating and transforming variables
 df <- df %>%
@@ -33,7 +29,7 @@ df <- df %>%
 df %>% View()
 df_us <- df %>% filter(us == 1) # number of observation of us studies
 df_can <- df %>% filter(us == 0) # number of observation of canadian studies
-++++++++++++++++++++++++nrow(df_us)
+nrow(df_us)
 nrow(df_can)
 #dataframe to create correlation map from more relevant model variables
 df_cor <- df %>%  
@@ -78,15 +74,14 @@ Model_1c <- lmer(lnwtp ~ lnq0 + lnq_change + lnyear  + local + us + prov + reg +
                    cult + lninc + forest + volunt + lumpsum + ce  +
                    (1 |studyid), data  = df)
 
-Model_1d <- lmer(lnwtp ~ lnq0 + lnq_change + lnyear  + local + us + prov + reg + 
-                   cult + lninc + forest + volunt + lumpsum + ce  +
-					       (1 |studyid), data  = df)
+Model_1d <- lmer(lnwtp ~ lnq0 + lnq_change + lnyear + local + us + lninc + forest + volunt + lumpsum + ce + nrev +
+                   prov + reg + (1 |studyid), data  = df)
 
 
 
 
 #checking if the random intercenpt model is appropriate for the data
-ranova(Model_1) 
+ranova(Model_1b) 
 ranova(Model_1c) 
 ranova(Model_1d) 
 
@@ -102,7 +97,7 @@ summary(Model_1d)
 
 
 # Calculating AIC
-performance::performance_aic(Model_1b)
+performance::performance_aic(Model_1)
 performance::performance_aic(Model_1c)
 performance::performance_aic(Model_1d)
 
@@ -111,7 +106,7 @@ performance::performance_aic(Model_1d)
 performance::check_heteroscedasticity(Model_1)
 performance::check_heteroscedasticity(Model_1c)
 
-performance::r2(Model_1)
+performance::r2(Model_1b)
 performance::r2(Model_1c)
 performance::r2(Model_1d)
 
@@ -137,18 +132,23 @@ Model_2b <- lmer(lnwtp2 ~ lnq0  + forest + volunt + lumpsum + ce + nrev  +
 Model_2c <- lmer(lnwtp2 ~ lnq0 + 
                    lnyear  + local + us + prov + reg + 
                    cult + lninc + forest + volunt + lumpsum + ce + nrev +
-                   (1 |studyid), data  = df) #lninc dropped cos of multicollinearity
+                   (1 |studyid), data  = df) 
+
+Model_2d <- lmer(lnwtp2 ~ lnq0 + 
+                   lnyear  + local + us + reg + 
+                   cult + lninc + forest + volunt + lumpsum + ce + nrev +
+                   (1 |studyid), data  = df) #prov dropped cos of multicollinearity
 
 #checking if the random intercenpt model is appropriate for the data
 ranova(Model_2)
 ranova(Model_2b)
-ranova(Model_2c) 
+ranova(Model_2d) 
 #checking if the random intercenpt model is appropriate for the data
 performance::check_collinearity(Model_2b) #VIF all below 10 so all good
-performance::check_collinearity(Model_2c) #VIF all below 10 so all good
+performance::check_collinearity(Model_2d) #VIF all below 10 so all good
 
 # Calculating AIC
-performance::performance_aic(Model_2b)
+performance::performance_aic(Model_2d)
 performance::performance_aic(Model_2c)
 
 #Other post-estimation results
@@ -161,15 +161,16 @@ summary(Model_2c)
 
 
 performance::r2(Model_2c)
-performance::r2(Model_2b)
+performance::r2(Model_2d)
 
 #Saving results in word
 class(Model_2) <- "lmerMod"
 class(Model_2b) <- "lmerMod"
 class(Model_2c) <- "lmerMod"
+class(Model_2d) <- "lmerMod"
 
 
-stargazer(Model_2, Model_2b, Model_2c,
+stargazer(Model_2, Model_2b, Model_2c, Model_2d,
           type = "html",
           out="output/model2-Us-Canada_new.doc",
           style = "qje",
@@ -200,13 +201,13 @@ summary(Model_1c_us)
 
 #checking if the random intercenpt model is appropriate for the data
 ranova(Model_1_us) 
-ranova(Model_1c_us) 
+ranova(Model_1b_us) 
 #checking if the random intercenpt model is appropriate for the data
 performance::check_collinearity(Model_1c_us) #VIF all below 10 so all good
 performance::check_collinearity(Model_1b_us) #VIF all below 10 so all good
 
 # Calculating AIC
-performance::performance_aic(Model_1b_us)
+performance::performance_aic(Model_1_us)
 performance::performance_aic(Model_1c_us)
 
 #Other post-estimation results
@@ -218,7 +219,7 @@ summary(Model_1b_us)
 summary(Model_1c_us)
 
 
-performance::r2(Model_1b_us)
+performance::r2(Model_1_us)
 performance::r2(Model_1c_us)
 
 #US-Canada model summary results
