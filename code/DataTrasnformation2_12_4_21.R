@@ -70,8 +70,8 @@ pattisson_wtp_89 <- 321.46          # retention at 89% of 1968 level
 pattisson_wtp_100 <- 347.78         # retention at 100% of 1968 level
 lantz_wtp1 <- 0.3250*35 +  0.3467*222.2 +  0.3283*1060.7 # wetland retention 
 lantz_wtp2 <- 0.3250*36  +  0.3467*227.5 +  0.3283*1038   # wetland retention plus restoration of additional 1000acres
-rudd_wtp1 <- 11.6       # wetlands - some improvements
-rudd_wtp2 <- 23.44      # wetlands - large improvements
+rudd_wtp1 <- 47       # wetlands - some improvements
+rudd_wtp2 <- 58      # wetlands - large improvements
 he_wtp_ce <- 482               #estimate from choice experiment
 he_wtp_cv <- 465               #estimate from contingent valuation
 vossler_wtp <- 836
@@ -233,20 +233,22 @@ canada_data <- data.frame(
     local = ifelse(authors == "dina_wtp", 0, local),
     
     # provisioning, binary = 1 if wetland produced provisioning ess 0 otherwise
-    prov = ifelse(authors == "tkac_wtp", 1, 0),
+    prov = ifelse(authors == "tkac_wtp", 0, 1),
     prov = ifelse(authors == "trenholm_wtp_30W"|authors == "trenholm_wtp_60W"|authors == "trenholm_wtp_30mAll"|
                      authors == "trenholm_wtp_60mAll", 1, prov),
     prov = ifelse(authors == "pattisson_wtp_2008l"|authors == "pattisson_wtp_80"|authors == "pattisson_wtp_83"|
                      authors == "pattisson_wtp_89"|authors == "pattisson_wtp_100", 0, prov),
     prov = ifelse(authors == "lantz_wtp1"|authors == "lantz_wtp2", 0, prov),
-    prov = ifelse(authors == "rudd_wtp1"|authors == "rudd_wtp2", 1, prov),
+    prov = ifelse(authors == "rudd_wtp1"|authors == "rudd_wtp2", 0, prov),
     prov = ifelse(authors == "he_wtp_ce"|authors == "he_wtp_cv", 0, prov),
-    prov = ifelse(authors == "vossler_wtp", 1, prov), 
+    prov = ifelse(authors == "vossler_wtp", 0, prov), 
+    prov = ifelse(authors == "dina_wtp", 0, prov), 
+    
     
     # regulation ess, binary = 1 if wetland produced regulation ess
     reg = ifelse(authors == "tkac_wtp", 1, 0),
     reg = ifelse(authors == "trenholm_wtp_30W"|authors == "trenholm_wtp_60W"|authors == "trenholm_wtp_30mAll"|
-                    authors == "trenholm_wtp_60mAll", 0, reg),
+                    authors == "trenholm_wtp_60mAll", 1, reg),
     reg = ifelse(authors == "pattisson_wtp_2008l"|authors == "pattisson_wtp_80"|authors == "pattisson_wtp_83"|
                     authors == "pattisson_wtp_89"|authors == "pattisson_wtp_100", 1, reg),
     reg = ifelse(authors == "lantz_wtp1"|authors == "lantz_wtp2", 1, reg),
@@ -256,15 +258,15 @@ canada_data <- data.frame(
     reg = ifelse(authors == "dina_wtp", 0, reg), 
     
     # cultural ess, binary = 1 if wetland produced cultural ess
-    cult = ifelse(authors == "tkac_wtp", 0, 0),
+    cult = ifelse(authors == "tkac_wtp", 1, 0),
     cult = ifelse(authors == "trenholm_wtp_30W"|authors == "trenholm_wtp_60W"|authors == "trenholm_wtp_30mAll"|
-                   authors == "trenholm_wtp_60mAll", 0, cult),
+                   authors == "trenholm_wtp_60mAll", 1, cult),
     cult = ifelse(authors == "pattisson_wtp_2008l"|authors == "pattisson_wtp_80"|authors == "pattisson_wtp_83"|
                    authors == "pattisson_wtp_89"|authors == "pattisson_wtp_100", 0, cult),
     cult = ifelse(authors == "lantz_wtp1"|authors == "lantz_wtp2", 0, cult), 
-    cult = ifelse(authors == "rudd_wtp1"|authors == "rudd_wtp2", 1, cult),
+    cult = ifelse(authors == "rudd_wtp1"|authors == "rudd_wtp2", 0, cult),
     cult = ifelse(authors == "he_wtp_ce"|authors == "he_wtp_cv", 0, cult),
-    cult = ifelse(authors == "vossler_wtp", 1, cult), 
+    cult = ifelse(authors == "vossler_wtp", 0, cult), 
     cult = ifelse(authors == "dina_wtp", 1, cult), 
     
     # forest, binary = 1 if wetland is in forest landscape
@@ -521,7 +523,7 @@ us_canada <- canada_data %>%
 
 us_canada %>% filter(wlfresh==1) %>% View()
                                             
-nrow(us_canada)
+view(us_canada)
 
 write.csv(us_canada, "data/Data_for_analysis_5_5_21.csv")  # Final US-Canada data for estimations.
 
